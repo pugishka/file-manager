@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -25,7 +26,9 @@ import javafx.stage.Stage;
 public class WindowF extends Application {
 	
 	private static WindowF instance;
+	public Scene scene;
 	public FlowPane flowIcons;
+	public AnchorPane anchorPane;
 	public ContextMenu filesCMenu;
 	public GUIEventHandlers eHandler;
 	
@@ -40,15 +43,23 @@ public class WindowF extends Application {
 		
 		main.setTop(generateMenu());
 		
+		anchorPane = new AnchorPane();
 		flowIcons = new FlowPane();
-		main.setCenter(flowIcons); 
+		AnchorPane.setTopAnchor(flowIcons, 0.0);
+		AnchorPane.setBottomAnchor(flowIcons, 0.0);
+		AnchorPane.setLeftAnchor(flowIcons, 0.0);
+		AnchorPane.setRightAnchor(flowIcons, 0.0);
+		anchorPane.getChildren().add(flowIcons);
+		
+//		main.setCenter(flowIcons);
+		main.setCenter(anchorPane); 
 		
 		Button returnBtn = new Button("Return"); 
 		main.setBottom(returnBtn);
 		eHandler.returnPreviousEvent(returnBtn);
 
 		
-		Scene scene = new Scene(main, 500, 600);
+		this.scene = new Scene(main, 500, 600);
 		scene.getStylesheets().add("css.css");
         stage.setScene(scene);
         stage.show();
@@ -87,6 +98,14 @@ public class WindowF extends Application {
 
 	public ContextMenu getFilesCMenu() {
 		return filesCMenu;
+	}
+
+	public AnchorPane getAnchorPane() {
+		return anchorPane;
+	}
+
+	public Scene getScene() {
+		return scene;
 	}
 	
 	

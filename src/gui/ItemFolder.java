@@ -3,6 +3,7 @@ package gui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -56,6 +57,10 @@ public class ItemFolder implements FilesFolders{
 		return s;
 	}
 	
+	public void setFiles(ArrayList<FilesFolders> files) {
+		this.files = files;
+	}
+
 	public void showImmediateChildren() {
 		FlowPane fp = WindowF.getInstance().getFlowIcons();
 		fp.getChildren().clear();
@@ -63,7 +68,7 @@ public class ItemFolder implements FilesFolders{
 		for(VBox child : s) {
 			fp.getChildren().add(child);
 		}
-		fp.setUserData(this.parent);
+		fp.setUserData(this);
 	}
 
 	public File getFile() {

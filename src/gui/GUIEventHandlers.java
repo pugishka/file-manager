@@ -3,22 +3,31 @@ package gui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Side;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class GUIEventHandlers {
 	
@@ -41,6 +50,7 @@ public class GUIEventHandlers {
         			"C:\\Users\\charo\\Documents\\Documents\\UDEM"
     			);
             	ItemFolder folder = new ItemFolder(dir, null);
+//            	WindowF.getInstance().getScene().setUserData(folder);
 //        		File[] contents = dir.listFiles();
 //        		for (File item : contents) {
 //        			folder.addFile(item);
@@ -81,7 +91,8 @@ public class GUIEventHandlers {
 		this.returnPrevious = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	FlowPane fp = WindowF.getInstance().getFlowIcons();
-            	ItemFolder folder = ((ItemFolder) fp.getUserData());
+            	ItemFolder folder = (ItemFolder)
+            			((FilesFolders) fp.getUserData()).getParent();
             	if(!(folder == null)) {
 	            	folder.showImmediateChildren();
 	        	}
@@ -91,18 +102,72 @@ public class GUIEventHandlers {
 		this.renameCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
-            	Label v = (Label) ((Node) cm.getUserData()).lookup(".show");
+            	VBox vbox = (VBox) cm.getUserData();
+            	Label v = (Label) vbox.lookup(".show");
+            	AnchorPane ap = WindowF.getInstance().getAnchorPane();
+            	Scene scene = WindowF.getInstance().getScene();
             	v.getStyleClass().remove("show");
             	v.getStyleClass().add("hide");
             	
-            	Label t = new Label("teeeeeeeeeeeeeeeeeeeeeeest");
-            	((VBox) cm.getUserData()).getChildren().add(t);
+            	Text text = new Text(v.getText());
+                new Scene(new Group(text));
+            	TextField t = new TextField(v.getText());
+
+            	Bounds b = v.localToScene(v.getBoundsInLocal());
+            	Bounds b2 = ap.localToScene(ap.getBoundsInLocal());
+            	AnchorPane.setLeftAnchor(t, b.getMinX() - b2.getMinX());
+            	AnchorPane.setTopAnchor(t, b.getMinY() - b2.getMinY());
+            	ap.getChildren().add(t);
             	
-//            	Label.setMargin(t, new Insets(
-//            			50.0, 50.0, 50.0, 50.0
-//            			));
+            	t.setMaxWidth(b2.getMaxX() - b.getMinX());
+        		Double prefW = text.getLayoutBounds().getWidth() + 30;
+        		if(prefW < t.getMaxWidth()-30) {
+        			t.setPrefWidth(prefW);
+        		} else {
+        			t.setPrefWidth(t.getMaxWidth()-30);
+        		}
+        		
+        		t.requestFocus();
+        		t.positionCaret(t.getText().length());
             	
-            	System.out.println(t.getTranslateY());
+            	t.textProperty().addListener((o, ov, nv) -> {
+            		text.setText(nv);
+            		Double newW = text.getLayoutBounds().getWidth() + 30;
+            		if(newW < t.getMaxWidth()-30) {
+            			t.setPrefWidth(newW);
+            		} 
+            	});
+            	
+            	
+            	t.focusedProperty().addListener((o, ov, nv) -> {
+                    if (!nv) {
+                    	ap.getChildren().remove(t);
+                    	v.getStyleClass().remove("hide");
+                    	v.getStyleClass().add("show");
+                    }
+                });
+            	
+            	t.setOnKeyReleased(event -> {
+        	        if (event.getCode().equals(KeyCode.ENTER)) {
+                    	ap.getChildren().remove(t);
+                    	v.getStyleClass().remove("hide");
+                    	v.getStyleClass().add("show");
+                    	((FilesFolders) vbox.getUserData()).
+                			updateName(t.getText());
+                    	System.out.println(
+                    			((FilesFolders) vbox.getUserData()).
+                    			getFile()
+                    			);
+        	        }
+            	});
+            	
+            	scene.setOnMousePressed(event -> {
+	                if (!t.equals(event.getSource())) {
+		                vbox.requestFocus();
+	                }
+            	});
+            	
+            	
             }
         };
         

@@ -1,6 +1,8 @@
 package gui;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -16,6 +18,7 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 	
 	public File getFile();
 	public String getIconDir();
+	public ItemFolder getParent();
 
 	public default VBox generateIcon() {
 		VBox vbox = new VBox();
@@ -36,6 +39,7 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		vbox.getChildren().add(icon);
 		vbox.getChildren().add(label);
 		vbox.setFillWidth(true);
+		System.out.println(this.getFile().getName());
 		vbox.setUserData(this);
 		vbox.getStyleClass().add("icon");
 		
@@ -55,5 +59,28 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		}
 		return r;
     }
+	
+	public default void updateName(String name) {
+		FlowPane fp = WindowF.getInstance().getFlowIcons();
+		int i = ((ItemFolder) fp.getUserData()).getFiles().indexOf(this);
+		
+		File f = getFile();
+		String s = (String) f.getParent() + "/" + name;
+//		System.out.println((new File(s)).exists());
+		
+		File newF = new File(s);
+		if(newF.exists()) {
+			//TODO
+		} else {
+			f.renameTo(newF);
+			getParent().getFiles().set(i, this);
+//			getParent().setFiles();
+			//TODO
+			getParent().getFiles().set(i, this);
+			System.out.println(f.generateIcon().getChildren());
+			((ItemFolder) fp.getUserData()).showImmediateChildren();
+			System.out.println(getParent().getImmediateChildrenS());
+		}
+	}
 	
 }
