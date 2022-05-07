@@ -2,87 +2,84 @@ package gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 
 
-public class ItemFolder implements FilesFolders {
+public class ItemFolder implements FilesFolders{
 
 	public ArrayList<FilesFolders> files = 
 			new ArrayList<FilesFolders>();
 	public File file;
+	public String iconDir = "C:/Users/charo/eclipse-workspace/"
+			+ "FileManager/folder_icon.png";
+	public ItemFolder parent;
 	
-	public ItemFolder(File file) {
+	public ItemFolder(File file, ItemFolder parent) {
 		this.file = file;
-	}
-	
-	public void addFile(File item) {
-		if (item.isFile()) {
-			files.add(new ItemFile(item));
-		} else if (item.isDirectory()) {
-			files.add(new ItemFolder(item));
+		this.parent = parent;
+		File[] contents = file.listFiles();
+		for (File item : contents) {
+			this.addFile(item, this);
 		}
 	}
-//	
-//	public void addFolder(File item) {
-//		folders.add(new ItemFolder(item));
-//	}
-
-	public File getFile() {
-		return this.file;
-	}
-
-	public String generateIcon() {
-		return this.file.getName();
+	
+	public void addFile(File item, ItemFolder parent) {
+		if (item.isFile()) {
+			files.add(new ItemFile(item, parent));
+		} else if (item.isDirectory()) {
+			files.add(new ItemFolder(item, parent));
+		}
 	}
 	
-	public ArrayList<String> getImmediateChildren(){
-		ArrayList<String> s = new ArrayList<String>();
+	public ArrayList<VBox> getImmediateChildren(){
+		ArrayList<VBox> s = new ArrayList<VBox>();
+		Collections.sort(files);
 		for (FilesFolders f : this.files) {
 			s.add(f.generateIcon());
 		}
 		return s;
 	}
 	
-	public void showImmediateChildren() {
-		WindowF.getInstance().getFlowIcons().getChildren().clear();
-		ArrayList<String> s = getImmediateChildren();
-		for(String name : s) {
-			Label label = new Label(name + "---");
-			WindowF.getInstance().getFlowIcons().getChildren().add(label);
+	public ArrayList<String> getImmediateChildrenS(){
+		ArrayList<String> s = new ArrayList<String>();
+		Collections.sort(files);
+		for (FilesFolders f : this.files) {
+			s.add(f.getFile().getName());
 		}
+		return s;
 	}
 	
-//	public void showIcons() {
-////		WindowF.getInstance().getFlowIcons().getChildren().clear();
-////		for (ItemFolder item : ListFilesFolders.getInstance().getFolders()) {
-////			Label label = new Label(
-////				item.getClass() + " " + item.getFile().getName()
-////			);
-////			WindowF.getInstance().getFlowIcons().getChildren().add(label);
-////		}
-////		for (ItemFile item : ListFilesFolders.getInstance().getFiles()) {
-////			Label label = new Label(
-////				item.getClass() + " " + item.getFile().getName()
-////			);
-////			WindowF.getInstance().getFlowIcons().getChildren().add(label);
-////		}
-//		for (ItemFile item : files) {
-//			Node icon = item.generateIcon(); 
-//			WindowF.getInstance().getFlowIcons().getChildren().add(icon);
-//		}
-//	}
-	
-//	public ItemFolder(File file) {
-//		this.file = file;
-//	}
-//
-//	public File getFile() {
-//		return file;
-//	}
-//
-//	public void setFile(File file) {
-//		this.file = file;
-//	}
+	public void showImmediateChildren() {
+		FlowPane fp = WindowF.getInstance().getFlowIcons();
+		fp.getChildren().clear();
+		ArrayList<VBox> s = getImmediateChildren();
+		for(VBox child : s) {
+			fp.getChildren().add(child);
+		}
+		fp.setUserData(this.parent);
+	}
+
+	public File getFile() {
+		return this.file;
+	}
+
+	public String getIconDir() {
+		return this.iconDir;
+	}
+
+	public ArrayList<FilesFolders> getFiles() {
+		return files;
+	}
+
+	public ItemFolder getParent() {
+		return parent;
+	}
 	
 }

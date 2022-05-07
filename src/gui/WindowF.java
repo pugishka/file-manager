@@ -1,11 +1,16 @@
 package gui;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -21,19 +26,30 @@ public class WindowF extends Application {
 	
 	private static WindowF instance;
 	public FlowPane flowIcons;
+	public ContextMenu filesCMenu;
 	public GUIEventHandlers eHandler;
 	
 	@Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
 		instance = this;
+		this.eHandler = GUIEventHandlers.getInstance();
+		this.filesCMenu = generateCMenu();
+		
 		stage.setTitle("Explorer");
 		BorderPane main = new BorderPane();
-		flowIcons = new FlowPane();
-		eHandler = GUIEventHandlers.getInstance();
 		
 		main.setTop(generateMenu());
-		main.setCenter(flowIcons);
-		Scene scene = new Scene(main, 1000, 600);
+		
+		flowIcons = new FlowPane();
+		main.setCenter(flowIcons); 
+		
+		Button returnBtn = new Button("Return"); 
+		main.setBottom(returnBtn);
+		eHandler.returnPreviousEvent(returnBtn);
+
+		
+		Scene scene = new Scene(main, 500, 600);
+		scene.getStylesheets().add("css.css");
         stage.setScene(scene);
         stage.show();
     }
@@ -41,12 +57,20 @@ public class WindowF extends Application {
 	public VBox generateMenu() {
 		Menu mfiles = new Menu("Files");
 		MenuItem mopen = new MenuItem("Open");
-		eHandler.openFilesEvent(mopen);
+		eHandler.openFileMenuEvent(mopen);
 		mfiles.getItems().add(mopen);
 		MenuBar mb = new MenuBar();
 		mb.getMenus().add(mfiles);
 		VBox v = new VBox(mb);
 		return v;
+	}
+	
+	public ContextMenu generateCMenu() {
+        ContextMenu cm = new ContextMenu();
+        MenuItem rename = new MenuItem("Rename");
+        eHandler.renameCMenuEvent(rename);
+        cm.getItems().add(rename);
+		return cm;
 	}
 	
 	public FlowPane getFlowIcons() {
@@ -58,8 +82,11 @@ public class WindowF extends Application {
 	}
 
 	public static void main(String[] args) {
-//		Colors c = new Colors();
 		launch(args);
+	}
+
+	public ContextMenu getFilesCMenu() {
+		return filesCMenu;
 	}
 	
 	

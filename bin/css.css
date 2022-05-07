@@ -1,0 +1,15 @@
+.icon{
+	-fx-background-color: none;
+}
+
+.icon:hover {
+	-fx-background-color: #eaf6fb;
+}
+
+.show {
+	visibility: visible;
+}
+
+.hide {
+	visibility: hidden;
+}
