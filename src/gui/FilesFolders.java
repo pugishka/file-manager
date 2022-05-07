@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.awt.Desktop;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
@@ -17,6 +18,7 @@ import javafx.scene.layout.VBox;
 public interface FilesFolders extends Comparable<FilesFolders> {
 	
 	public File getFile();
+	public void setFile(File f);
 	public String getIconDir();
 	public ItemFolder getParent();
 
@@ -39,7 +41,7 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		vbox.getChildren().add(icon);
 		vbox.getChildren().add(label);
 		vbox.setFillWidth(true);
-		System.out.println(this.getFile().getName());
+//		System.out.println(this.getFile().getName());
 		vbox.setUserData(this);
 		vbox.getStyleClass().add("icon");
 		
@@ -56,31 +58,35 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 			r = 1;
 		} else if (!isFile1 && isFile2) {
 			r = -1;
+		} else {
+			r = getFile().getName().compareTo(item.getFile().getName());
 		}
 		return r;
     }
 	
 	public default void updateName(String name) {
-		FlowPane fp = WindowF.getInstance().getFlowIcons();
-		int i = ((ItemFolder) fp.getUserData()).getFiles().indexOf(this);
+//		FlowPane fp = WindowF.getInstance().getFlowIcons();
+		int i = getParent().getFiles().indexOf(this);
 		
 		File f = getFile();
 		String s = (String) f.getParent() + "/" + name;
-//		System.out.println((new File(s)).exists());
-		
 		File newF = new File(s);
+		
 		if(newF.exists()) {
 			//TODO
 		} else {
 			f.renameTo(newF);
+			this.setFile(newF);
 			getParent().getFiles().set(i, this);
-//			getParent().setFiles();
-			//TODO
-			getParent().getFiles().set(i, this);
-			System.out.println(f.generateIcon().getChildren());
-			((ItemFolder) fp.getUserData()).showImmediateChildren();
-			System.out.println(getParent().getImmediateChildrenS());
+			getParent().showImmediateChildren();
 		}
+	}
+	
+	public default void delete() {
+		int i = getParent().getFiles().indexOf(this);
+		Desktop.getDesktop().moveToTrash(this.getFile());
+		getParent().getFiles().remove(i);
+		getParent().showImmediateChildren();
 	}
 	
 }

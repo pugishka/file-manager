@@ -29,6 +29,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
+
+
+// cm userData = vbox
+// vbox userData = FilesFolders
+// fp userData = ItemFolder currently opened
+
 public class GUIEventHandlers {
 	
 	private static GUIEventHandlers instance;
@@ -41,6 +47,12 @@ public class GUIEventHandlers {
 	private EventHandler<ActionEvent> returnPrevious;
 	// event to rename file / folder
 	private EventHandler<ActionEvent> renameCMenu;
+	// event to delete file / folder
+	private EventHandler<ActionEvent> deleteCMenu;
+	// event to copy file / folder
+	private EventHandler<ActionEvent> copyCMenu;
+	// event to paste file / folder
+	private EventHandler<ActionEvent> pasteCMenu;
 	
 	// generate event handlers
 	public GUIEventHandlers() {
@@ -50,11 +62,6 @@ public class GUIEventHandlers {
         			"C:\\Users\\charo\\Documents\\Documents\\UDEM"
     			);
             	ItemFolder folder = new ItemFolder(dir, null);
-//            	WindowF.getInstance().getScene().setUserData(folder);
-//        		File[] contents = dir.listFiles();
-//        		for (File item : contents) {
-//        			folder.addFile(item);
-//        		}
             	folder.showImmediateChildren();
             }
         };
@@ -77,6 +84,7 @@ public class GUIEventHandlers {
                     	
                     }
                 }
+        		
         		if(e.getButton().equals(MouseButton.SECONDARY)){
         			ContextMenu cm = WindowF.getInstance().getFilesCMenu();
         			cm.setUserData(e.getSource());
@@ -154,10 +162,6 @@ public class GUIEventHandlers {
                     	v.getStyleClass().add("show");
                     	((FilesFolders) vbox.getUserData()).
                 			updateName(t.getText());
-                    	System.out.println(
-                    			((FilesFolders) vbox.getUserData()).
-                    			getFile()
-                    			);
         	        }
             	});
             	
@@ -170,6 +174,30 @@ public class GUIEventHandlers {
             	
             }
         };
+        
+        // TODO
+        // undo
+        // message that it's sent to recycle bin
+        // shortcut recycle bin
+        this.deleteCMenu = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e){
+            	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
+            	VBox vbox = (VBox) cm.getUserData();
+            	((FilesFolders) vbox.getUserData()).delete();
+            }};
+            
+        this.copyCMenu = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e){}};
+            
+        this.pasteCMenu = new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent e){}};
+        
+        // TODO
+        // delete
+        // copy + paste
+        // new folder
+        // select area
+        
         
 	}
 	
@@ -193,10 +221,20 @@ public class GUIEventHandlers {
         m.setOnAction(renameCMenu);
 	}
 	
-//	// set returnPrevious event
-//	public void contextMenuFileEvent(VBox icon) {
-//        icon.setOnMouseClicked(contextMenuFile);
-//	}
+	// set delete event
+	public void deleteCMenuEvent(MenuItem m) {
+        m.setOnAction(deleteCMenu);
+	}
+	
+	// set copy event
+	public void copyCMenuEvent(MenuItem m) {
+        m.setOnAction(copyCMenu);
+	}
+	
+	// set paste event
+	public void pasteCMenuEvent(MenuItem m) {
+        m.setOnAction(pasteCMenu);
+	}
 	
 	// get instance
 	public static GUIEventHandlers getInstance() {

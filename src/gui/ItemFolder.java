@@ -74,6 +74,11 @@ public class ItemFolder implements FilesFolders{
 	public File getFile() {
 		return this.file;
 	}
+	
+
+	public void setFile(File file) {
+		this.file = file;
+	}
 
 	public String getIconDir() {
 		return this.iconDir;

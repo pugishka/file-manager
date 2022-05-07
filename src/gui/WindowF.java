@@ -23,6 +23,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+
+
+//cm userData = vbox
+//vbox userData = FilesFolders
+//fp userData = ItemFolder currently opened
+
 public class WindowF extends Application {
 	
 	private static WindowF instance;
@@ -39,6 +45,8 @@ public class WindowF extends Application {
 		this.filesCMenu = generateCMenu();
 		
 		stage.setTitle("Explorer");
+		stage.setX(0);
+		stage.setY(0);
 		BorderPane main = new BorderPane();
 		
 		main.setTop(generateMenu());
@@ -51,7 +59,6 @@ public class WindowF extends Application {
 		AnchorPane.setRightAnchor(flowIcons, 0.0);
 		anchorPane.getChildren().add(flowIcons);
 		
-//		main.setCenter(flowIcons);
 		main.setCenter(anchorPane); 
 		
 		Button returnBtn = new Button("Return"); 
@@ -59,9 +66,10 @@ public class WindowF extends Application {
 		eHandler.returnPreviousEvent(returnBtn);
 
 		
-		this.scene = new Scene(main, 500, 600);
+		this.scene = new Scene(main, 900, 600);
 		scene.getStylesheets().add("css.css");
         stage.setScene(scene);
+        debug();
         stage.show();
     }
 	
@@ -78,10 +86,26 @@ public class WindowF extends Application {
 	
 	public ContextMenu generateCMenu() {
         ContextMenu cm = new ContextMenu();
+        
         MenuItem rename = new MenuItem("Rename");
         eHandler.renameCMenuEvent(rename);
+        MenuItem delete = new MenuItem("Delete");
+        eHandler.deleteCMenuEvent(delete);
+        MenuItem copy = new MenuItem("Copy");
+        eHandler.deleteCMenuEvent(copy);
+        
         cm.getItems().add(rename);
+        cm.getItems().add(delete);
+        cm.getItems().add(copy);
 		return cm;
+	}
+	
+	public void debug() {
+    	File dir = new File(
+			"C:\\Users\\charo\\Documents\\Documents\\UDEM"
+		);
+    	ItemFolder folder = new ItemFolder(dir, null);
+    	folder.showImmediateChildren();
 	}
 	
 	public FlowPane getFlowIcons() {
