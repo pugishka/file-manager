@@ -2,4 +2,4 @@
 
 # File manager
 
-Creating a file manager with additionnal organizing tools.
+Creating a file manager with additional organizing tools.
