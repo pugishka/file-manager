@@ -1,6 +1,6 @@
 A file manager with the functions :
 - Rename group of files with expression (number them, add a word before the name, etc.)
-- Show reading progress of a file
+- Show reading progress of a file (such as for long pdf files for studies)
 - Additions to files/folders :
 	- checkmarks
 	- colors
