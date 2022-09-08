@@ -10,16 +10,4 @@ A file manager with the functions :
 - Automatically organize files into different folders depending on parameters (name, date, numbers, etc.)
 - Shortcut menu to folders
 - Create printable slideshows
-
-Title :
-	
-Goal :
-	
-Pre-conditions :
-	
-Main success scenario :
-	
-Extensions :
-	
-Post-conditions :
 	
