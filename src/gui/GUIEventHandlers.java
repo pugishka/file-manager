@@ -193,6 +193,9 @@ public class GUIEventHandlers{
             	((FilesFolders) vbox.getUserData()).delete();
             }
         };
+        
+        // TODO
+        // copy triggered by ctrl+c
             
         this.copyCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
@@ -204,6 +207,7 @@ public class GUIEventHandlers{
             
         // TODO
         // paste
+        // paste triggered by ctrl+v
             
         this.pasteCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){}
