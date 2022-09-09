@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.awt.Desktop;
+import java.awt.Toolkit;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
@@ -12,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import java.awt.datatransfer.Clipboard;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -84,6 +86,14 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 	
 	public default void delete() {
 		int i = getParent().getFiles().indexOf(this);
+		Desktop.getDesktop().moveToTrash(this.getFile());
+		getParent().getFiles().remove(i);
+		getParent().showImmediateChildren();
+	}
+	
+	public default void copy() {
+		int i = getParent().getFiles().indexOf(this);
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		Desktop.getDesktop().moveToTrash(this.getFile());
 		getParent().getFiles().remove(i);
 		getParent().showImmediateChildren();

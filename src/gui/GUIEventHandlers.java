@@ -193,7 +193,6 @@ public class GUIEventHandlers {
             public void handle(ActionEvent e){}};
         
         // TODO
-        // delete
         // copy + paste
         // new folder
         // select area
