@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 
@@ -14,6 +15,9 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
+
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
@@ -92,11 +96,19 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 	}
 	
 	public default void copy() {
-		int i = getParent().getFiles().indexOf(this);
+        
+		ArrayList<File> listFiles = new ArrayList<File>();
+		listFiles.add(this.getFile());
+		FileTransferable ft = new FileTransferable(listFiles);
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		Desktop.getDesktop().moveToTrash(this.getFile());
-		getParent().getFiles().remove(i);
-		getParent().showImmediateChildren();
+		clipboard.setContents(ft, new ClipboardOwner() {
+            @Override
+            public void lostOwnership(
+            		Clipboard clipboard, 
+            		Transferable contents) {
+//                System.out.println("Clipboard replaced");
+            }
+        });
 	}
 	
 }

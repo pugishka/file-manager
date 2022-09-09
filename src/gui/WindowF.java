@@ -2,6 +2,7 @@ package gui;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -15,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -64,11 +66,14 @@ public class WindowF extends Application {
 		Button returnBtn = new Button("Return"); 
 		main.setBottom(returnBtn);
 		eHandler.returnPreviousEvent(returnBtn);
-
 		
 		this.scene = new Scene(main, 900, 600);
 		scene.getStylesheets().add("css.css");
-        stage.setScene(scene);
+		
+		scene.setOnKeyPressed(eHandler.undoKeyPressed());
+		scene.setOnKeyReleased(eHandler.undoKeyReleased());
+
+		stage.setScene(scene);
         debug();
         stage.show();
     }
@@ -92,7 +97,7 @@ public class WindowF extends Application {
         MenuItem delete = new MenuItem("Delete");
         eHandler.deleteCMenuEvent(delete);
         MenuItem copy = new MenuItem("Copy");
-        eHandler.deleteCMenuEvent(copy);
+        eHandler.copyCMenuEvent(copy);
         
         cm.getItems().add(rename);
         cm.getItems().add(delete);

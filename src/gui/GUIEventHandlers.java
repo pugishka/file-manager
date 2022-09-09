@@ -3,7 +3,11 @@ package gui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
+
+import javax.swing.JTextField;
+
 import java.util.HashMap;
+import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -29,13 +33,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-
+import java.awt.event.KeyListener;
+import javafx.scene.input.KeyEvent;
 
 // cm userData = vbox
 // vbox userData = FilesFolders
 // fp userData = ItemFolder currently opened
 
-public class GUIEventHandlers {
+public class GUIEventHandlers{
 	
 	private static GUIEventHandlers instance;
 	
@@ -53,6 +58,12 @@ public class GUIEventHandlers {
 	private EventHandler<ActionEvent> copyCMenu;
 	// event to paste file / folder
 	private EventHandler<ActionEvent> pasteCMenu;
+	// event to undo 
+	private EventHandler<KeyEvent> undoKeyPressed;
+	private EventHandler<KeyEvent> undoKeyReleased;
+	private List<KeyCode> keysPressed = new ArrayList<KeyCode>();
+	private boolean undoPressed = false;
+	
 	
 	// generate event handlers
 	public GUIEventHandlers() {
@@ -175,26 +186,66 @@ public class GUIEventHandlers {
             }
         };
         
-        // TODO
-        // undo
-        // message that it's sent to recycle bin
-        // shortcut recycle bin
         this.deleteCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
             	VBox vbox = (VBox) cm.getUserData();
             	((FilesFolders) vbox.getUserData()).delete();
-            }};
+            }
+        };
             
         this.copyCMenu = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e){}};
+            public void handle(ActionEvent e){
+            	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
+            	VBox vbox = (VBox) cm.getUserData();
+            	((FilesFolders) vbox.getUserData()).copy();
+            }
+        };
+            
+        // TODO
+        // paste
             
         this.pasteCMenu = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e){}};
+            public void handle(ActionEvent e){}
+        };
+        
+            
+        this.undoKeyPressed = new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+            	if(!keysPressed.contains(event.getCode())) {
+                	keysPressed.add(event.getCode());
+            	}
+            	if(keysPressed.contains(KeyCode.Z) && event.isControlDown()) {
+            		undoPressed = true;
+            	}
+            }
+        };
+        
+	    this.undoKeyReleased = new EventHandler<KeyEvent>() {
+	        @Override
+	        public void handle(KeyEvent event) {
+	        	keysPressed.remove(event.getCode());
+            	if((!keysPressed.contains(KeyCode.Z) || !event.isControlDown())
+            			&& undoPressed)
+    			{
+            		undoPressed = false;
+            		// TODO
+            		// Undo event triggered
+            	}
+	        }
+	    };
         
         // TODO
-        // copy + paste
+        // message that it's sent to recycle bin
+        
+        // TODO
+        // shortcut recycle bin
+            
+        // TODO
         // new folder
+            
+        // TODO
         // select area
         
         
@@ -234,6 +285,32 @@ public class GUIEventHandlers {
 	public void pasteCMenuEvent(MenuItem m) {
         m.setOnAction(pasteCMenu);
 	}
+	
+	// set undo event
+	
+	public EventHandler<KeyEvent> undoKeyPressed() {
+		return this.undoKeyPressed;
+	}
+	public EventHandler<KeyEvent> undoKeyReleased() {
+		return this.undoKeyReleased;
+	}
+//
+//	@Override
+//	public void keyTyped(KeyEvent e) {
+//		System.out.println("test");
+//	}
+//
+//	@Override
+//	public void keyPressed(KeyEvent e) {
+//		System.out.println("test");
+//		
+//	}
+//
+//	@Override
+//	public void keyReleased(KeyEvent e) {
+//		System.out.println("test");
+//		
+//	}
 	
 	// get instance
 	public static GUIEventHandlers getInstance() {
