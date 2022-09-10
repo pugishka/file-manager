@@ -16,7 +16,6 @@ public class Command{
 		}
 		mementos.add(m);
     	index++;
-    	printAll();
     }
     
     private void printAll() {
