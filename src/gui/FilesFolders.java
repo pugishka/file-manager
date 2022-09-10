@@ -105,9 +105,7 @@ public interface FilesFolders extends Comparable<FilesFolders> {
             @Override
             public void lostOwnership(
             		Clipboard clipboard, 
-            		Transferable contents) {
-//                System.out.println("Clipboard replaced");
-            }
+            		Transferable contents) {}
         });
 	}
 	

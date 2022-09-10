@@ -67,6 +67,8 @@ public class GUIEventHandlers{
 	
 	// generate event handlers
 	public GUIEventHandlers() {
+		
+		// open root folder
 		this.openFileMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	File dir = new File(
@@ -77,6 +79,10 @@ public class GUIEventHandlers{
             }
         };
         
+        // Left of right click on file/folder icon
+        // - open file
+        // - open folder
+        // - show contextual menu
         this.openFileIcon = new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
         		FilesFolders f = (FilesFolders) 
@@ -87,6 +93,9 @@ public class GUIEventHandlers{
                     	String name = f.getClass().getSimpleName();
                     	
                     	if(name.equals("ItemFile")){
+                    		
+                    		// TODO
+                    		// Open file
                     		System.out.println("File open");
                     		
                 		} else if (name.equals("ItemFolder")) {
@@ -107,6 +116,7 @@ public class GUIEventHandlers{
         	}
         };
         
+        // button to return to the parent folder, up to the root folder
 		this.returnPrevious = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	FlowPane fp = WindowF.getInstance().getFlowIcons();
@@ -118,6 +128,9 @@ public class GUIEventHandlers{
             }
         };
         
+        // rename a file/folder
+        // TODO
+        // name already used
 		this.renameCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
@@ -193,6 +206,9 @@ public class GUIEventHandlers{
             }
         };
         
+        // delete a file/folder
+        // TODO
+        // delete triggered by delete key
         this.deleteCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
@@ -220,7 +236,10 @@ public class GUIEventHandlers{
             public void handle(ActionEvent e){}
         };
         
-            
+        
+        // listening to the keys, wait for ctrl+z    
+        // TODO
+        // implement for other ctrl shortcuts
         this.undoKeyPressed = new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
