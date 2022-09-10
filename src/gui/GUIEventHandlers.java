@@ -58,11 +58,15 @@ public class GUIEventHandlers{
 	private EventHandler<ActionEvent> copyCMenu;
 	// event to paste file / folder
 	private EventHandler<ActionEvent> pasteCMenu;
-	// event to undo 
-	private EventHandler<KeyEvent> undoKeyPressed;
-	private EventHandler<KeyEvent> undoKeyReleased;
+	// listen to keys pressed and released
+	private EventHandler<KeyEvent> listenKeysPressed;
+	private EventHandler<KeyEvent> listenKeysReleased;
 	private List<KeyCode> keysPressed = new ArrayList<KeyCode>();
+	// undo (ctrl+z) pressed ? 
 	private boolean undoPressed = false;
+	// redo (ctrl+y) pressed ?
+	private boolean redoPressed = false;
+	
 	
 	
 	// generate event handlers
@@ -186,11 +190,12 @@ public class GUIEventHandlers{
                     	v.getStyleClass().add("show");
                     	String pn = ((FilesFolders) vbox.getUserData()).
                     			getFile().getName();
-                    	((FilesFolders) vbox.getUserData()).
-                			updateName(t.getText());
+                    	String nn = t.getText();
+                    	((FilesFolders) vbox.getUserData()).updateName(nn);
                     	MementoRename mr = new MementoRename(
                 			(FilesFolders) vbox.getUserData(),
-                			pn
+                			pn,
+                			nn
             			);
                     	Command.getInstance().addMemento(mr);
         	        }
@@ -237,40 +242,57 @@ public class GUIEventHandlers{
         };
         
         
-        // listening to the keys, wait for ctrl+z    
+        // listening to the keys, wait for shortcuts
+        
         // TODO
-        // implement for other ctrl shortcuts
-        this.undoKeyPressed = new EventHandler<KeyEvent>() {
+        // implement other ctrl shortcuts
+        this.listenKeysPressed = new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
             	if(!keysPressed.contains(event.getCode())) {
                 	keysPressed.add(event.getCode());
             	}
-            	if(keysPressed.contains(KeyCode.Z) && event.isControlDown()) {
+            	
+            	// only the first detected will = true
+            	
+            	// ctrl + z
+            	if(keysPressed.contains(KeyCode.Z) 
+            			&& event.isControlDown() 
+            			&& !redoPressed) {
             		undoPressed = true;
             	}
+            	
+            	// ctrl + y
+            	if(keysPressed.contains(KeyCode.Y) 
+            			&& event.isControlDown() 
+            			&& !undoPressed) {
+            		redoPressed = true;
+            	}
+            	
             }
         };
         
-	    this.undoKeyReleased = new EventHandler<KeyEvent>() {
+	    this.listenKeysReleased = new EventHandler<KeyEvent>() {
 	        @Override
 	        public void handle(KeyEvent event) {
 	        	keysPressed.remove(event.getCode());
             	if((!keysPressed.contains(KeyCode.Z) || !event.isControlDown())
-            			&& undoPressed)
-    			{
+            			&& undoPressed){
             		undoPressed = false;
-            		// TODO
-            		// Undo event triggered
-            		
             		Command.getInstance().undo();
-            		
+            		System.out.println("undo");
+            	}
+            	if((!keysPressed.contains(KeyCode.Y) || !event.isControlDown())
+            			&& redoPressed){
+            		redoPressed = false;
+            		Command.getInstance().redo();
+            		System.out.println("redo");
             	}
 	        }
 	    };
         
         // TODO
-        // message that it's sent to recycle bin
+        // message that file/folder sent to recycle bin
         
         // TODO
         // shortcut recycle bin
@@ -322,10 +344,10 @@ public class GUIEventHandlers{
 	// set undo event
 	
 	public EventHandler<KeyEvent> undoKeyPressed() {
-		return this.undoKeyPressed;
+		return this.listenKeysPressed;
 	}
 	public EventHandler<KeyEvent> undoKeyReleased() {
-		return this.undoKeyReleased;
+		return this.listenKeysReleased;
 	}
 //
 //	@Override

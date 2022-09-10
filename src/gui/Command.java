@@ -28,6 +28,7 @@ public class Command{
     public void undo() {
     	if (index > -1) {
     		Memento lastM = mementos.get(index);
+    		lastM.printInfo();
     		lastM.restore();
     		index--;
     	}
@@ -36,7 +37,8 @@ public class Command{
     public void redo() {
     	if (index < (mementos.size()-1)) {
     		Memento nextM = mementos.get(index+1);
-    		nextM.restore();
+    		nextM.printInfo();
+    		nextM.redo();
     		index++;
     	}
     }
