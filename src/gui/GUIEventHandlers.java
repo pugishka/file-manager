@@ -171,8 +171,15 @@ public class GUIEventHandlers{
                     	ap.getChildren().remove(t);
                     	v.getStyleClass().remove("hide");
                     	v.getStyleClass().add("show");
+                    	String pn = ((FilesFolders) vbox.getUserData()).
+                    			getFile().getName();
                     	((FilesFolders) vbox.getUserData()).
                 			updateName(t.getText());
+                    	MementoRename mr = new MementoRename(
+                			(FilesFolders) vbox.getUserData(),
+                			pn
+            			);
+                    	Command.getInstance().addMemento(mr);
         	        }
             	});
             	
@@ -236,6 +243,9 @@ public class GUIEventHandlers{
             		undoPressed = false;
             		// TODO
             		// Undo event triggered
+            		
+            		Command.getInstance().undo();
+            		
             	}
 	        }
 	    };
