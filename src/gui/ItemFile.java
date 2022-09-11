@@ -35,6 +35,11 @@ public class ItemFile implements FilesFolders {
 	public void setFile(File file) {
 		this.file = file;
 	}
+	
+	public void setParent(ItemFolder parent) {
+		this.parent = parent;
+	}
+
 
 	
 }

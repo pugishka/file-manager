@@ -40,9 +40,16 @@ import javafx.scene.input.KeyEvent;
 // vbox userData = FilesFolders
 // fp userData = ItemFolder currently opened
 
+// TODO
+// error messages
+
 public class GUIEventHandlers{
 	
 	private static GUIEventHandlers instance;
+	
+	private String root;
+	private ItemFolder recycleBin;
+	private ItemFolder rootObject;
 	
 	// event to generate file and folder objects + update visual
 	private EventHandler<ActionEvent> openFileMenu;
@@ -72,16 +79,25 @@ public class GUIEventHandlers{
 	// generate event handlers
 	public GUIEventHandlers() {
 		
+		this.root = "C:\\Users\\charo\\Documents\\Documents\\UDEM";
+		
 		// open root folder
 		this.openFileMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	File dir = new File(
-        			"C:\\Users\\charo\\Documents\\Documents\\UDEM"
-    			);
+            	File dir = new File(root);
+            	File recycleBin = new File(root + "/recycleBin");
+            	if (!recycleBin.exists()){
+            		recycleBin.mkdirs();
+            	}
             	ItemFolder folder = new ItemFolder(dir, null);
             	folder.showImmediateChildren();
+            	GUIEventHandlers.getInstance().setRootObject(folder);
+            	System.out.println(folder);
+            	GUIEventHandlers.getInstance().setRecycleBin(
+            			(ItemFolder) folder.getFilesFolders("recycleBin"));
             }
         };
+        
         
         // Left of right click on file/folder icon
         // - open file
@@ -218,7 +234,12 @@ public class GUIEventHandlers{
             public void handle(ActionEvent e){
             	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
             	VBox vbox = (VBox) cm.getUserData();
-            	((FilesFolders) vbox.getUserData()).delete();
+            	MementoDelete md = new MementoDelete(
+        			(FilesFolders) vbox.getUserData(),
+        			((FilesFolders) vbox.getUserData()).getFile().getParentFile().toString()
+    			);
+            	Command.getInstance().addMemento(md);
+            	((FilesFolders) vbox.getUserData()).delete(null);
             }
         };
         
@@ -347,23 +368,6 @@ public class GUIEventHandlers{
 	public EventHandler<KeyEvent> undoKeyReleased() {
 		return this.listenKeysReleased;
 	}
-//
-//	@Override
-//	public void keyTyped(KeyEvent e) {
-//		System.out.println("test");
-//	}
-//
-//	@Override
-//	public void keyPressed(KeyEvent e) {
-//		System.out.println("test");
-//		
-//	}
-//
-//	@Override
-//	public void keyReleased(KeyEvent e) {
-//		System.out.println("test");
-//		
-//	}
 	
 	// get instance
 	public static GUIEventHandlers getInstance() {
@@ -371,5 +375,25 @@ public class GUIEventHandlers{
 			instance = new GUIEventHandlers();
 		}
 		return instance;
+	}
+
+	public String getRoot() {
+		return this.root;
+	}
+
+	public void setRecycleBin(ItemFolder rB) {
+		this.recycleBin = rB;
+	}
+
+	public void setRootObject(ItemFolder rO) {
+		this.rootObject = rO;
+	}
+
+	public ItemFolder getRecycleBin() {
+		return this.recycleBin;
+	}
+
+	public ItemFolder getRootObject() {
+		return this.rootObject;
 	}
 }

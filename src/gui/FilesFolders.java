@@ -1,7 +1,7 @@
 package gui;
 
 import java.io.File;
-import java.nio.file.Path;
+//import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +88,57 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		}
 	}
 	
-	public default void delete() {
+	public default void updatePath(String path, ItemFolder reload) {
+		int i = getParent().getFiles().indexOf(this);
+		
+		File f = getFile();
+		String s = path + "/" + f.getName();
+		File newF = new File(s);
+		
+		if(newF.exists()) {
+			//TODO
+		} else {
+			f.renameTo(newF);
+			this.setFile(newF);
+			getParent().getFiles().remove(i);
+			
+			// find the FilesFolders to put this in
+			FilesFolders newFolder = GUIEventHandlers.getInstance().getRootObject();
+			File root = newFolder.getFile();
+			
+			// separate each folder from root directory
+			ArrayList<String> dir = new ArrayList<String>();
+			newF = new File(path);
+			
+			// TODO
+			// Can a file and folder have the same name ?
+			
+	    	while (newF.getParentFile() != null && !(newF.toString().equals(root.toString()))) {
+	    		dir.add(newF.getName());
+		        newF = newF.getParentFile();
+	    	}
+	    	
+	    	for (int j=dir.size()-1; j>=0; j--) {
+				newFolder = ((ItemFolder) newFolder).getFilesFolders(dir.get(j));
+	    	}
+	    	
+			((ItemFolder) newFolder).getFiles().add(this);
+			reload.showImmediateChildren();
+			this.setParent((ItemFolder) newFolder);
+		}
+	}
+	
+	public void setParent(ItemFolder parent);
+	
+	
+	public default void delete(ItemFolder reload) {
+		if(reload == null) {
+			reload = this.getParent();
+		}
+		updatePath(GUIEventHandlers.getInstance().getRoot() + "/recycleBin", reload);
+	}
+	
+	public default void deleteBin() {
 		int i = getParent().getFiles().indexOf(this);
 		Desktop.getDesktop().moveToTrash(this.getFile());
 		getParent().getFiles().remove(i);

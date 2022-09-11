@@ -91,5 +91,24 @@ public class ItemFolder implements FilesFolders{
 	public ItemFolder getParent() {
 		return parent;
 	}
+
+	public void setParent(ItemFolder parent) {
+		this.parent = parent;
+	}
+
+	public FilesFolders getFilesFolders(String name) {
+		int i;
+		for(i=0; i<this.getFiles().size(); i++) {
+			String fFName = this.getFiles().get(i).getFile().getName();
+			if (fFName.equals(name)) {
+				break;
+			}
+		}
+		if(i==this.getFiles().size()) {
+			return null;
+		} else {
+			return this.getFiles().get(i);
+		}
+	}
 	
 }
