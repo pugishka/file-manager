@@ -36,7 +36,6 @@ import javafx.scene.text.Text;
 import java.awt.event.KeyListener;
 import javafx.scene.input.KeyEvent;
 
-// cm userData = vbox
 // vbox userData = FilesFolders
 // fp userData = ItemFolder currently opened
 
@@ -73,6 +72,8 @@ public class GUIEventHandlers{
 	private boolean undoPressed = false;
 	// redo (ctrl+y) pressed ?
 	private boolean redoPressed = false;
+	// event click on window
+	private EventHandler<MouseEvent> clickWindow;
 	
 	
 	
@@ -92,7 +93,6 @@ public class GUIEventHandlers{
             	ItemFolder folder = new ItemFolder(dir, null);
             	folder.showImmediateChildren();
             	GUIEventHandlers.getInstance().setRootObject(folder);
-            	System.out.println(folder);
             	GUIEventHandlers.getInstance().setRecycleBin(
             			(ItemFolder) folder.getFilesFolders("recycleBin"));
             }
@@ -107,10 +107,10 @@ public class GUIEventHandlers{
         	public void handle(MouseEvent e) {
         		FilesFolders f = (FilesFolders) 
             			((Node) e.getSource()).getUserData();
+            	String name = f.getClass().getSimpleName();
         		
         		if(e.getButton().equals(MouseButton.PRIMARY)){
                     if(e.getClickCount() == 2){
-                    	String name = f.getClass().getSimpleName();
                     	
                     	if(name.equals("ItemFile")){
                     		
@@ -126,8 +126,15 @@ public class GUIEventHandlers{
                 }
         		
         		if(e.getButton().equals(MouseButton.SECONDARY)){
-        			ContextMenu cm = WindowF.getInstance().getFilesCMenu();
-        			cm.setUserData(e.getSource());
+        			ContextMenu cm = null;
+                	if(name.equals("ItemFile")){
+            			cm = WindowF.getInstance().getFileCMenu("file");
+                		
+            		} else if (name.equals("ItemFolder")) {
+            			cm = WindowF.getInstance().getFileCMenu("folder");
+        			}
+                	WindowF.getInstance().setCurrentSelection((VBox) e.getSource());
+//        			cm.setUserData(e.getSource());
         			cm.show((Node) e.getSource(), 
 	    					e.getScreenX(),
 	    					e.getScreenY()
@@ -153,8 +160,10 @@ public class GUIEventHandlers{
         // name already used
 		this.renameCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
-            	VBox vbox = (VBox) cm.getUserData();
+//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
+//            	VBox vbox = (VBox) cm.getUserData();
+            	VBox vbox = WindowF.getInstance().getCurrentSelection();
+            	
             	Label v = (Label) vbox.lookup(".show");
             	AnchorPane ap = WindowF.getInstance().getAnchorPane();
             	Scene scene = WindowF.getInstance().getScene();
@@ -232,8 +241,9 @@ public class GUIEventHandlers{
         // delete triggered by delete key
         this.deleteCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
-            	VBox vbox = (VBox) cm.getUserData();
+//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
+//            	VBox vbox = (VBox) cm.getUserData();
+            	VBox vbox = WindowF.getInstance().getCurrentSelection();
             	MementoDelete md = new MementoDelete(
         			(FilesFolders) vbox.getUserData(),
         			((FilesFolders) vbox.getUserData()).getFile().getParentFile().toString()
@@ -247,17 +257,25 @@ public class GUIEventHandlers{
         // copy triggered by ctrl+c
         this.copyCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	ContextMenu cm = WindowF.getInstance().getFilesCMenu();
-            	VBox vbox = (VBox) cm.getUserData();
+//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
+//            	VBox vbox = (VBox) cm.getUserData();
+
+            	VBox vbox = WindowF.getInstance().getCurrentSelection();
             	((FilesFolders) vbox.getUserData()).copy();
             }
         };
             
         // TODO
-        // paste
+        // paste in current folder
         // paste triggered by ctrl+v
         this.pasteCMenu = new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e){}
+            public void handle(ActionEvent e){
+//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
+//            	VBox vbox = (VBox) cm.getUserData();
+
+            	VBox vbox = WindowF.getInstance().getCurrentSelection();
+            	((ItemFolder) vbox.getUserData()).paste();
+        	}
         };
         
         
@@ -309,6 +327,23 @@ public class GUIEventHandlers{
             	}
 	        }
 	    };
+	    
+	    // TODO
+	    // when window clicked
+	    
+        this.clickWindow = new EventHandler<MouseEvent>() {
+        	public void handle(MouseEvent e) {
+        		
+//        		if(e.getButton().equals(MouseButton.SECONDARY)){
+//        			ContextMenu cm = WindowF.getInstance().getFileCMenu("folder");
+//                	WindowF.getInstance().setCurrentSelection((VBox) e.getSource());
+//        			cm.show((Node) e.getSource(), 
+//	    					e.getScreenX(),
+//	    					e.getScreenY()
+//	    					);
+//                }
+        	}
+        };
         
         // TODO
         // message that file/folder sent to recycle bin
@@ -367,6 +402,12 @@ public class GUIEventHandlers{
 	}
 	public EventHandler<KeyEvent> undoKeyReleased() {
 		return this.listenKeysReleased;
+	}
+	
+	// set right click on window event
+	
+	public void clickWindowEvent(FlowPane window) {
+	    window.setOnMouseClicked(clickWindow);
 	}
 	
 	// get instance

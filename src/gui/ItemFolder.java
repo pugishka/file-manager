@@ -1,9 +1,14 @@
 package gui;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -109,6 +114,25 @@ public class ItemFolder implements FilesFolders{
 		} else {
 			return this.getFiles().get(i);
 		}
+	}
+	
+	public void paste() {
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	    DataFlavor flavor = DataFlavor.javaFileListFlavor;
+	    if (clipboard.isDataFlavorAvailable(flavor)) {
+	    	try {
+	    		@SuppressWarnings("unchecked")
+				ArrayList<File> listFiles = 
+	    				(ArrayList<File>) clipboard.getData(flavor);
+	    		File file = listFiles.get(0);
+	    		addFile(file, this);
+	    	}
+    		catch (UnsupportedFlavorException e) {
+				e.printStackTrace();
+	    	} catch (IOException e) {
+	    		System.out.println(e);
+	    	} 
+	    }
 	}
 	
 }

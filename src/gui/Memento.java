@@ -7,7 +7,6 @@ public interface Memento {
 	// TODO
 	// make mementos for other undo/redo events
 	// - paste
-	// - delete
 	// - move
 	// - create folder
     
