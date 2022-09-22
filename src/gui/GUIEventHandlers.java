@@ -20,6 +20,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
@@ -105,6 +106,7 @@ public class GUIEventHandlers{
         // - show contextual menu
         this.openFileIcon = new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
+
         		FilesFolders f = (FilesFolders) 
             			((Node) e.getSource()).getUserData();
             	String name = f.getClass().getSimpleName();
@@ -128,14 +130,13 @@ public class GUIEventHandlers{
         		if(e.getButton().equals(MouseButton.SECONDARY)){
         			ContextMenu cm = null;
                 	if(name.equals("ItemFile")){
-            			cm = WindowF.getInstance().getFileCMenu("file");
+            			cm = WindowF.getInstance().getCMenu("file");
                 		
             		} else if (name.equals("ItemFolder")) {
-            			cm = WindowF.getInstance().getFileCMenu("folder");
+            			cm = WindowF.getInstance().getCMenu("folder");
         			}
-                	WindowF.getInstance().setCurrentSelection((VBox) e.getSource());
-//        			cm.setUserData(e.getSource());
-        			cm.show((Node) e.getSource(), 
+                	WindowF.getInstance().setCurrentSelection((VBox) e.getTarget());
+        			cm.show((Node) e.getTarget(), 
 	    					e.getScreenX(),
 	    					e.getScreenY()
 	    					);
@@ -146,9 +147,10 @@ public class GUIEventHandlers{
         // button to return to the parent folder, up to the root folder
 		this.returnPrevious = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	FlowPane fp = WindowF.getInstance().getFlowIcons();
-            	ItemFolder folder = (ItemFolder)
-            			((FilesFolders) fp.getUserData()).getParent();
+//            	FlowPane fp = WindowF.getInstance().getFlowIcons();
+//            	ItemFolder folder = (ItemFolder)
+//            			((FilesFolders) fp.getUserData()).getParent();;
+            	ItemFolder folder = (ItemFolder) WindowF.getInstance().getCurrentFolder().getParent();
             	if(!(folder == null)) {
 	            	folder.showImmediateChildren();
 	        	}
@@ -160,77 +162,81 @@ public class GUIEventHandlers{
         // name already used
 		this.renameCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
+//            	ContextMenu cm = WindowF.getInstance().getCMenu("file");
 //            	VBox vbox = (VBox) cm.getUserData();
-            	VBox vbox = WindowF.getInstance().getCurrentSelection();
-            	
-            	Label v = (Label) vbox.lookup(".show");
-            	AnchorPane ap = WindowF.getInstance().getAnchorPane();
-            	Scene scene = WindowF.getInstance().getScene();
-            	v.getStyleClass().remove("show");
-            	v.getStyleClass().add("hide");
-            	
-            	Text text = new Text(v.getText());
-                new Scene(new Group(text));
-            	TextField t = new TextField(v.getText());
 
-            	Bounds b = v.localToScene(v.getBoundsInLocal());
-            	Bounds b2 = ap.localToScene(ap.getBoundsInLocal());
-            	AnchorPane.setLeftAnchor(t, b.getMinX() - b2.getMinX());
-            	AnchorPane.setTopAnchor(t, b.getMinY() - b2.getMinY());
-            	ap.getChildren().add(t);
-            	
-            	t.setMaxWidth(b2.getMaxX() - b.getMinX());
-        		Double prefW = text.getLayoutBounds().getWidth() + 30;
-        		if(prefW < t.getMaxWidth()-30) {
-        			t.setPrefWidth(prefW);
-        		} else {
-        			t.setPrefWidth(t.getMaxWidth()-30);
-        		}
-        		
-        		t.requestFocus();
-        		t.positionCaret(t.getText().length());
-            	
-            	t.textProperty().addListener((o, ov, nv) -> {
-            		text.setText(nv);
-            		Double newW = text.getLayoutBounds().getWidth() + 30;
-            		if(newW < t.getMaxWidth()-30) {
-            			t.setPrefWidth(newW);
-            		} 
-            	});
-            	
-            	
-            	t.focusedProperty().addListener((o, ov, nv) -> {
-                    if (!nv) {
-                    	ap.getChildren().remove(t);
-                    	v.getStyleClass().remove("hide");
-                    	v.getStyleClass().add("show");
-                    }
-                });
-            	
-            	t.setOnKeyReleased(event -> {
-        	        if (event.getCode().equals(KeyCode.ENTER)) {
-                    	ap.getChildren().remove(t);
-                    	v.getStyleClass().remove("hide");
-                    	v.getStyleClass().add("show");
-                    	String pn = ((FilesFolders) vbox.getUserData()).
-                    			getFile().getName();
-                    	String nn = t.getText();
-                    	((FilesFolders) vbox.getUserData()).updateName(nn);
-                    	MementoRename mr = new MementoRename(
-                			(FilesFolders) vbox.getUserData(),
-                			pn,
-                			nn
-            			);
-                    	Command.getInstance().addMemento(mr);
-        	        }
-            	});
-            	
-            	scene.setOnMousePressed(event -> {
-	                if (!t.equals(event.getSource())) {
-		                vbox.requestFocus();
-	                }
-            	});
+            	Object obj = WindowF.getInstance().getCurrentSelection();
+            	if(obj.getClass().getSimpleName().equals("VBox")) {
+                	VBox vbox = (VBox) obj;
+                	
+                	Label v = (Label) vbox.lookup(".show");
+                	AnchorPane ap = WindowF.getInstance().getAnchorPane();
+                	Scene scene = WindowF.getInstance().getScene();
+                	v.getStyleClass().remove("show");
+                	v.getStyleClass().add("hide");
+                	
+                	Text text = new Text(v.getText());
+                    new Scene(new Group(text));
+                	TextField t = new TextField(v.getText());
+
+                	Bounds b = v.localToScene(v.getBoundsInLocal());
+                	Bounds b2 = ap.localToScene(ap.getBoundsInLocal());
+                	AnchorPane.setLeftAnchor(t, b.getMinX() - b2.getMinX());
+                	AnchorPane.setTopAnchor(t, b.getMinY() - b2.getMinY());
+                	ap.getChildren().add(t);
+                	
+                	t.setMaxWidth(b2.getMaxX() - b.getMinX());
+            		Double prefW = text.getLayoutBounds().getWidth() + 30;
+            		if(prefW < t.getMaxWidth()-30) {
+            			t.setPrefWidth(prefW);
+            		} else {
+            			t.setPrefWidth(t.getMaxWidth()-30);
+            		}
+            		
+            		t.requestFocus();
+            		t.positionCaret(t.getText().length());
+                	
+                	t.textProperty().addListener((o, ov, nv) -> {
+                		text.setText(nv);
+                		Double newW = text.getLayoutBounds().getWidth() + 30;
+                		if(newW < t.getMaxWidth()-30) {
+                			t.setPrefWidth(newW);
+                		} 
+                	});
+                	
+                	
+                	t.focusedProperty().addListener((o, ov, nv) -> {
+                        if (!nv) {
+                        	ap.getChildren().remove(t);
+                        	v.getStyleClass().remove("hide");
+                        	v.getStyleClass().add("show");
+                        }
+                    });
+                	
+                	t.setOnKeyReleased(event -> {
+            	        if (event.getCode().equals(KeyCode.ENTER)) {
+                        	ap.getChildren().remove(t);
+                        	v.getStyleClass().remove("hide");
+                        	v.getStyleClass().add("show");
+                        	String pn = ((FilesFolders) vbox.getUserData()).
+                        			getFile().getName();
+                        	String nn = t.getText();
+                        	((FilesFolders) vbox.getUserData()).updateName(nn);
+                        	MementoRename mr = new MementoRename(
+                    			(FilesFolders) vbox.getUserData(),
+                    			pn,
+                    			nn
+                			);
+                        	Command.getInstance().addMemento(mr);
+            	        }
+                	});
+                	
+                	scene.setOnMousePressed(event -> {
+    	                if (!t.equals(event.getTarget())) {
+    		                vbox.requestFocus();
+    	                }
+                	});
+            	}
             	
             	
             }
@@ -243,7 +249,15 @@ public class GUIEventHandlers{
             public void handle(ActionEvent e){
 //            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
 //            	VBox vbox = (VBox) cm.getUserData();
-            	VBox vbox = WindowF.getInstance().getCurrentSelection();
+//            	VBox vbox = WindowF.getInstance().getCurrentSelection();
+            	
+
+            	Object obj = WindowF.getInstance().getCurrentSelection();
+            	VBox vbox = null;
+            	if(obj.getClass().getSimpleName().equals("VBox")) {
+                	vbox = (VBox) obj;
+            	}
+            	
             	MementoDelete md = new MementoDelete(
         			(FilesFolders) vbox.getUserData(),
         			((FilesFolders) vbox.getUserData()).getFile().getParentFile().toString()
@@ -260,7 +274,15 @@ public class GUIEventHandlers{
 //            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
 //            	VBox vbox = (VBox) cm.getUserData();
 
-            	VBox vbox = WindowF.getInstance().getCurrentSelection();
+//            	VBox vbox = WindowF.getInstance().getCurrentSelection();
+            	
+
+            	Object obj = WindowF.getInstance().getCurrentSelection();
+            	VBox vbox = null;
+            	if(obj.getClass().getSimpleName().equals("VBox")) {
+                	vbox = (VBox) obj;
+            	}
+            	
             	((FilesFolders) vbox.getUserData()).copy();
             }
         };
@@ -273,8 +295,23 @@ public class GUIEventHandlers{
 //            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
 //            	VBox vbox = (VBox) cm.getUserData();
 
-            	VBox vbox = WindowF.getInstance().getCurrentSelection();
-            	((ItemFolder) vbox.getUserData()).paste();
+//            	VBox vbox = WindowF.getInstance().getCurrentSelection();
+            	
+            	
+
+            	Object obj = WindowF.getInstance().getCurrentSelection();
+            	if(obj.getClass().getSimpleName().equals("VBox")) {
+                	((ItemFolder) ((VBox) obj).getUserData()).paste();
+            	}
+            	if(obj.getClass().getSimpleName().equals("FlowPane")) {
+
+//                	FlowPane fp = WindowF.getInstance().getFlowIcons();
+//                	ItemFolder folder = (ItemFolder)
+//                			((FilesFolders) fp.getUserData()).getParent();
+            		WindowF.getInstance().getCurrentFolder().paste();
+            		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
+            	}
+            	
         	}
         };
         
@@ -333,15 +370,17 @@ public class GUIEventHandlers{
 	    
         this.clickWindow = new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
-        		
-//        		if(e.getButton().equals(MouseButton.SECONDARY)){
-//        			ContextMenu cm = WindowF.getInstance().getFileCMenu("folder");
-//                	WindowF.getInstance().setCurrentSelection((VBox) e.getSource());
-//        			cm.show((Node) e.getSource(), 
-//	    					e.getScreenX(),
-//	    					e.getScreenY()
-//	    					);
-//                }
+        		String target = e.getTarget().getClass().getSimpleName();
+    			ContextMenu cm = WindowF.getInstance().getCMenu("window");
+        		if(e.getButton().equals(MouseButton.SECONDARY) && target.equals("FlowPane")){
+                	WindowF.getInstance().setCurrentSelection((FlowPane) e.getTarget());
+        			cm.show((Node) e.getTarget(), 
+	    					e.getScreenX(),
+	    					e.getScreenY()
+	    					);
+                } else {
+            		cm.hide();
+                }
         	}
         };
         

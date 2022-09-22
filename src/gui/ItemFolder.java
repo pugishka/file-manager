@@ -73,7 +73,9 @@ public class ItemFolder implements FilesFolders{
 		for(VBox child : s) {
 			fp.getChildren().add(child);
 		}
-		fp.setUserData(this);
+		WindowF.getInstance().setCurrentFolder(this);
+		
+//		fp.setUserData(this);
 	}
 
 	public File getFile() {

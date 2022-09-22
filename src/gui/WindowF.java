@@ -39,8 +39,12 @@ public class WindowF extends Application {
 	public AnchorPane anchorPane;
 	public ContextMenu fileCMenu;
 	public ContextMenu folderCMenu;
+	public ContextMenu windowCMenu;
 	public GUIEventHandlers eHandler;
-	public VBox selected;
+	// TODO
+	// separate class maybe for current selected and opened
+	public Object selected;
+	public ItemFolder currentFolder;
 	
 	@Override
     public void start(Stage stage) throws IOException {
@@ -48,6 +52,7 @@ public class WindowF extends Application {
 		this.eHandler = GUIEventHandlers.getInstance();
 		this.fileCMenu = generateCMenu("file");
 		this.folderCMenu = generateCMenu("folder");
+		this.windowCMenu = generateCMenu("window");
 		
 		stage.setTitle("Explorer");
 		stage.setX(0);
@@ -68,7 +73,7 @@ public class WindowF extends Application {
 		main.setCenter(anchorPane); 
 		
 		Button returnBtn = new Button("Return"); 
-		main.setBottom(returnBtn);
+		main.setRight(returnBtn);
 		eHandler.returnPreviousEvent(returnBtn);
 		
 		this.scene = new Scene(main, 900, 600);
@@ -102,15 +107,23 @@ public class WindowF extends Application {
         eHandler.deleteCMenuEvent(delete);
         MenuItem copy = new MenuItem("Copy");
         eHandler.copyCMenuEvent(copy);
-        
-        cm.getItems().add(rename);
-        cm.getItems().add(delete);
-        cm.getItems().add(copy);
-        
+        MenuItem paste = new MenuItem("Paste");
+        eHandler.pasteCMenuEvent(paste);
 
+        if(type.equals("file")) {
+            cm.getItems().add(rename);
+            cm.getItems().add(delete);
+            cm.getItems().add(copy);
+        }
+        
         if(type.equals("folder")) {
-            MenuItem paste = new MenuItem("Paste");
-            eHandler.pasteCMenuEvent(paste);
+            cm.getItems().add(rename);
+            cm.getItems().add(delete);
+            cm.getItems().add(copy);
+            cm.getItems().add(paste);
+        }
+
+        if(type.equals("window")) {
             cm.getItems().add(paste);
         }
         
@@ -127,9 +140,9 @@ public class WindowF extends Application {
     	ItemFolder folder = new ItemFolder(dir, null);
     	folder.showImmediateChildren();
     	GUIEventHandlers.getInstance().setRootObject(folder);
-    	System.out.println(folder);
     	GUIEventHandlers.getInstance().setRecycleBin(
     			(ItemFolder) folder.getFilesFolders("recycleBin"));
+    	this.currentFolder = folder;
 	}
 	
 	public FlowPane getFlowIcons() {
@@ -144,11 +157,13 @@ public class WindowF extends Application {
 		launch(args);
 	}
 
-	public ContextMenu getFileCMenu(String type) {
+	public ContextMenu getCMenu(String type) {
         if(type.equals("file")) {
     		return fileCMenu;
         } else if (type.equals("folder")) {
     		return folderCMenu;
+        } else if (type.equals("window")) {
+    		return windowCMenu;
         }
         return null;
 	}
@@ -161,12 +176,20 @@ public class WindowF extends Application {
 		return scene;
 	}
 	
-	public void setCurrentSelection(VBox selected) {
+	public void setCurrentSelection(Object selected) {
 		this.selected = selected;
 	}
 	
-	public VBox getCurrentSelection() {
+	public Object getCurrentSelection() {
 		return this.selected;
+	}
+	
+	public void setCurrentFolder(ItemFolder folder) {
+		this.currentFolder = folder;
+	}
+	
+	public ItemFolder getCurrentFolder() {
+		return this.currentFolder;
 	}
 	
 }
