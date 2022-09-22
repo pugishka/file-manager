@@ -218,9 +218,14 @@ public class GUIEventHandlers{
                         	ap.getChildren().remove(t);
                         	v.getStyleClass().remove("hide");
                         	v.getStyleClass().add("show");
+                        	// previous name, new name
                         	String pn = ((FilesFolders) vbox.getUserData()).
                         			getFile().getName();
                         	String nn = t.getText();
+                        	File file = new File(WindowF.getInstance().getCurrentFolder().getFile().getPath() + "/" + nn);
+                        	if(file.exists()) {
+                        		WindowF.getInstance().alertMessage("name");
+                        	}
                         	((FilesFolders) vbox.getUserData()).updateName(nn);
                         	MementoRename mr = new MementoRename(
                     			(FilesFolders) vbox.getUserData(),

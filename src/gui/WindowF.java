@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -190,6 +192,12 @@ public class WindowF extends Application {
 	
 	public ItemFolder getCurrentFolder() {
 		return this.currentFolder;
+	}
+	
+	public void alertMessage(String type) {
+		if(type.equals("name")) {
+			JOptionPane.showMessageDialog(null, "A file with the same name already exists.");
+		}
 	}
 	
 }
