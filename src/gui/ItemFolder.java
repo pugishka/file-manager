@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+
+import org.apache.commons.io.FileUtils;
+
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 
@@ -118,6 +121,9 @@ public class ItemFolder implements FilesFolders{
 		}
 	}
 	
+	// TODO
+	// name already exists
+	
 	public void paste() {
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	    DataFlavor flavor = DataFlavor.javaFileListFlavor;
@@ -127,7 +133,14 @@ public class ItemFolder implements FilesFolders{
 				ArrayList<File> listFiles = 
 	    				(ArrayList<File>) clipboard.getData(flavor);
 	    		File file = listFiles.get(0);
+	    		FileUtils.copyFileToDirectory(file, this.file);
 	    		addFile(file, this);
+            	MementoPaste mp = new MementoPaste(
+        			this,
+        			this.getFilesFolders(file.getName())
+    			);
+            	Command.getInstance().addMemento(mp);
+	    		
 	    	}
     		catch (UnsupportedFlavorException e) {
 				e.printStackTrace();

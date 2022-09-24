@@ -88,6 +88,10 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		}
 	}
 	
+
+	// TODO
+	// name already exists
+	
 	public default void updatePath(String path, ItemFolder reload) {
 		int i = getParent().getFiles().indexOf(this);
 		
@@ -130,6 +134,8 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 	
 	public void setParent(ItemFolder parent);
 	
+	// TODO
+	// name already exists
 	
 	public default void delete(ItemFolder reload) {
 		if(reload == null) {
@@ -138,12 +144,12 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		updatePath(GUIEventHandlers.getInstance().getRoot() + "/recycleBin", reload);
 	}
 	
-	public default void deleteBin() {
-		int i = getParent().getFiles().indexOf(this);
-		Desktop.getDesktop().moveToTrash(this.getFile());
-		getParent().getFiles().remove(i);
-		getParent().showImmediateChildren();
-	}
+//	public default void deleteBin() {
+//		int i = getParent().getFiles().indexOf(this);
+//		Desktop.getDesktop().moveToTrash(this.getFile());
+//		getParent().getFiles().remove(i);
+//		getParent().showImmediateChildren();
+//	}
 	
 	public default void copy() {
         

@@ -73,6 +73,10 @@ public class GUIEventHandlers{
 	private boolean undoPressed = false;
 	// redo (ctrl+y) pressed ?
 	private boolean redoPressed = false;
+	// copy (ctrl+c) pressed ?
+	private boolean copyPressed = false;
+	// paste (ctrl+v) pressed ?
+	private boolean pastePressed = false;
 	// event click on window
 	private EventHandler<MouseEvent> clickWindow;
 	
@@ -108,7 +112,7 @@ public class GUIEventHandlers{
         	public void handle(MouseEvent e) {
 
         		FilesFolders f = (FilesFolders) 
-            			((Node) e.getSource()).getUserData();
+            			((VBox) e.getSource()).getUserData();
             	String name = f.getClass().getSimpleName();
         		
         		if(e.getButton().equals(MouseButton.PRIMARY)){
@@ -123,7 +127,9 @@ public class GUIEventHandlers{
                 		} else if (name.equals("ItemFolder")) {
                 			((ItemFolder) f).showImmediateChildren();
             			}
-                    	
+                    } else {
+                    	WindowF.getInstance().setCurrentSelection(
+                    			(VBox) e.getSource());
                     }
                 }
         		
@@ -135,8 +141,10 @@ public class GUIEventHandlers{
             		} else if (name.equals("ItemFolder")) {
             			cm = WindowF.getInstance().getCMenu("folder");
         			}
-                	WindowF.getInstance().setCurrentSelection((VBox) e.getTarget());
-        			cm.show((Node) e.getTarget(), 
+                	WindowF.getInstance().setCurrentSelection(
+                			(VBox) e.getSource());
+                	
+        			cm.show((VBox) e.getSource(), 
 	    					e.getScreenX(),
 	    					e.getScreenY()
 	    					);
@@ -276,12 +284,6 @@ public class GUIEventHandlers{
         // copy triggered by ctrl+c
         this.copyCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
-//            	VBox vbox = (VBox) cm.getUserData();
-
-//            	VBox vbox = WindowF.getInstance().getCurrentSelection();
-            	
-
             	Object obj = WindowF.getInstance().getCurrentSelection();
             	VBox vbox = null;
             	if(obj.getClass().getSimpleName().equals("VBox")) {
@@ -337,15 +339,37 @@ public class GUIEventHandlers{
             	// ctrl + z
             	if(keysPressed.contains(KeyCode.Z) 
             			&& event.isControlDown() 
-            			&& !redoPressed) {
+            			&& !redoPressed
+            			&& !copyPressed
+            			&& !pastePressed) {
             		undoPressed = true;
             	}
             	
             	// ctrl + y
             	if(keysPressed.contains(KeyCode.Y) 
             			&& event.isControlDown() 
-            			&& !undoPressed) {
+            			&& !undoPressed
+            			&& !copyPressed
+            			&& !pastePressed) {
             		redoPressed = true;
+            	}
+            	
+            	// ctrl + c
+            	if(keysPressed.contains(KeyCode.C) 
+            			&& event.isControlDown() 
+            			&& !undoPressed
+            			&& !redoPressed
+            			&& !pastePressed) {
+            		copyPressed = true;
+            	}
+            	
+            	// ctrl + v
+            	if(keysPressed.contains(KeyCode.V) 
+            			&& event.isControlDown() 
+            			&& !undoPressed
+            			&& !redoPressed
+            			&& !copyPressed) {
+            		pastePressed = true;
             	}
             	
             }
@@ -367,6 +391,22 @@ public class GUIEventHandlers{
             		Command.getInstance().redo();
             		System.out.println("redo");
             	}
+            	if((!keysPressed.contains(KeyCode.C) || !event.isControlDown())
+            			&& copyPressed){
+            		copyPressed = false;
+            		Object obj = ((Node) WindowF.getInstance().getCurrentSelection());
+            		if(obj.getClass().getSimpleName().equals("VBox")) {
+            			((FilesFolders) ((VBox) obj).getUserData()).copy();
+                		System.out.println("copy");
+            		}
+            	}
+            	if((!keysPressed.contains(KeyCode.V) || !event.isControlDown())
+            			&& pastePressed){
+            		pastePressed = false;
+            		WindowF.getInstance().getCurrentFolder().paste();
+            		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
+            		System.out.println("paste");
+            	}
 	        }
 	    };
 	    
@@ -377,15 +417,20 @@ public class GUIEventHandlers{
         	public void handle(MouseEvent e) {
         		String target = e.getTarget().getClass().getSimpleName();
     			ContextMenu cm = WindowF.getInstance().getCMenu("window");
-        		if(e.getButton().equals(MouseButton.SECONDARY) && target.equals("FlowPane")){
-                	WindowF.getInstance().setCurrentSelection((FlowPane) e.getTarget());
-        			cm.show((Node) e.getTarget(), 
-	    					e.getScreenX(),
-	    					e.getScreenY()
-	    					);
-                } else {
+    			if(target.equals("FlowPane")) {
+	        		if(e.getButton().equals(MouseButton.SECONDARY)){
+	                	WindowF.getInstance().setCurrentSelection((FlowPane) e.getTarget());
+	        			cm.show((Node) e.getTarget(), 
+		    					e.getScreenX(),
+		    					e.getScreenY()
+		    					);
+	                } else {
+	                	WindowF.getInstance().setCurrentSelection((FlowPane) e.getTarget());
+	            		cm.hide();
+	                }
+    			} else {
             		cm.hide();
-                }
+    			}
         	}
         };
         

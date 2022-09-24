@@ -6,6 +6,14 @@
 	-fx-background-color: #eaf6fb;
 }
 
+.icon.selected {
+	-fx-background-color: #d5edf7;
+}
+
+.icon.selected:hover {
+	-fx-background-color: #bfe4f3;
+}
+
 .show {
 	visibility: visible;
 }

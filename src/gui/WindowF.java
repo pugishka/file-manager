@@ -10,6 +10,7 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -179,7 +180,13 @@ public class WindowF extends Application {
 	}
 	
 	public void setCurrentSelection(Object selected) {
+		if(this.selected != null) {
+			((Node) this.selected).getStyleClass().remove("selected");
+		}
 		this.selected = selected;
+		if(selected != null) {
+			((Node) selected).getStyleClass().add("selected");
+		}
 	}
 	
 	public Object getCurrentSelection() {
@@ -196,7 +203,8 @@ public class WindowF extends Application {
 	
 	public void alertMessage(String type) {
 		if(type.equals("name")) {
-			JOptionPane.showMessageDialog(null, "A file with the same name already exists.");
+			JOptionPane.showMessageDialog(null, 
+					"A file with the same name already exists.");
 		}
 	}
 	
