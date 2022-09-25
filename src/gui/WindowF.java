@@ -202,10 +202,11 @@ public class WindowF extends Application {
 	}
 	
 	public void alertMessage(String type) {
+		String message = "";
 		if(type.equals("name")) {
-			JOptionPane.showMessageDialog(null, 
-					"A file with the same name already exists.");
+			message = "A file with the same name already exists.";
 		}
+		JOptionPane.showMessageDialog(null, message);
 	}
 	
 }

@@ -11,10 +11,12 @@ public class MementoDelete implements Memento {
 	
     private FilesFolders filesFolders;
     private String prevDir;
+    private String prevName;
 	
-    public MementoDelete(FilesFolders fF, String prevDir) {
+    public MementoDelete(FilesFolders fF, String prevDir, String prevName) {
         this.filesFolders = fF;
         this.prevDir = prevDir;
+        this.prevName = prevName;
     }
     
 	public void restore() {

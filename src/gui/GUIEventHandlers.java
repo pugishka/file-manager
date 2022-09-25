@@ -234,7 +234,7 @@ public class GUIEventHandlers{
                         	if(file.exists()) {
                         		WindowF.getInstance().alertMessage("name");
                         	}
-                        	((FilesFolders) vbox.getUserData()).updateName(nn);
+                        	((FilesFolders) vbox.getUserData()).updateName(nn, true);
                         	MementoRename mr = new MementoRename(
                     			(FilesFolders) vbox.getUserData(),
                     			pn,
@@ -270,10 +270,24 @@ public class GUIEventHandlers{
             	if(obj.getClass().getSimpleName().equals("VBox")) {
                 	vbox = (VBox) obj;
             	}
-            	
+
+        		String path = getRoot() + "/recycleBin";
+        		String name = ((FilesFolders) vbox.getUserData()).getFile().getName();
+        		String newName = name;
+        		File newF = new File(path + "/" + name);
+        		int i = 1;
+        		while(newF.exists()) {
+        			newName = name + " (" + i + ")";
+            		newF = new File(path + "/" + newName);
+        		}
+        		if(!newName.equals(name)) {
+        			((FilesFolders) vbox.getUserData()).updateName(newName, false);
+        		}
+        		// stopped last time
             	MementoDelete md = new MementoDelete(
         			(FilesFolders) vbox.getUserData(),
-        			((FilesFolders) vbox.getUserData()).getFile().getParentFile().toString()
+        			((FilesFolders) vbox.getUserData()).getFile().getParentFile().toString(),
+        			newName
     			);
             	Command.getInstance().addMemento(md);
             	((FilesFolders) vbox.getUserData()).delete(null);

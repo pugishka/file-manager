@@ -70,7 +70,9 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		return r;
     }
 	
-	public default void updateName(String name) {
+	// TODO
+	// put reload in GUI
+	public default void updateName(String name, Boolean reload) {
 //		FlowPane fp = WindowF.getInstance().getFlowIcons();
 		int i = getParent().getFiles().indexOf(this);
 		
@@ -84,7 +86,9 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 			f.renameTo(newF);
 			this.setFile(newF);
 			getParent().getFiles().set(i, this);
-			getParent().showImmediateChildren();
+			if(reload) {
+				getParent().showImmediateChildren();
+			}
 		}
 	}
 	
@@ -141,7 +145,8 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		if(reload == null) {
 			reload = this.getParent();
 		}
-		updatePath(GUIEventHandlers.getInstance().getRoot() + "/recycleBin", reload);
+		String path = GUIEventHandlers.getInstance().getRoot() + "/recycleBin";
+		updatePath(path, reload);
 	}
 	
 //	public default void deleteBin() {
