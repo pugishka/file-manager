@@ -133,6 +133,8 @@ public class ItemFolder implements FilesFolders{
 				ArrayList<File> listFiles = 
 	    				(ArrayList<File>) clipboard.getData(flavor);
 	    		File file = listFiles.get(0);
+	    		// TODO
+	    		// copy paste in same folder
 	    		FileUtils.copyFileToDirectory(file, this.file);
 	    		addFile(file, this);
             	MementoPaste mp = new MementoPaste(

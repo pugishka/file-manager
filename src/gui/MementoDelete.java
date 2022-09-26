@@ -12,24 +12,25 @@ public class MementoDelete implements Memento {
     private FilesFolders filesFolders;
     private String prevDir;
     private String prevName;
+    private String newName;
 	
-    public MementoDelete(FilesFolders fF, String prevDir, String prevName) {
+    public MementoDelete(FilesFolders fF, String prevDir, String prevName, String newName) {
         this.filesFolders = fF;
         this.prevDir = prevDir;
         this.prevName = prevName;
+        this.newName = newName;
     }
     
 	public void restore() {
-		// search file in recycle bin folder
-    	FlowPane fp = WindowF.getInstance().getFlowIcons();
-//		filesFolders.updatePath(prevDir, (ItemFolder) fp.getUserData());
 		filesFolders.updatePath(prevDir, WindowF.getInstance().getCurrentFolder());
+    	filesFolders.updateName(prevName, false);
+    	WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 	
 	public void redo() {
-    	FlowPane fp = WindowF.getInstance().getFlowIcons();
-//		filesFolders.delete((ItemFolder) fp.getUserData());
+    	filesFolders.updateName(newName, false);
     	filesFolders.delete(WindowF.getInstance().getCurrentFolder());
+    	WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 
 	public void printInfo() {

@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 
 import java.util.HashMap;
 import java.util.List;
+import org.apache.commons.io.FilenameUtils;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -42,6 +43,7 @@ import javafx.scene.input.KeyEvent;
 
 // TODO
 // error messages
+// refresh if files changed in real file explorer
 
 public class GUIEventHandlers{
 	
@@ -277,8 +279,12 @@ public class GUIEventHandlers{
         		File newF = new File(path + "/" + name);
         		int i = 1;
         		while(newF.exists()) {
-        			newName = name + " (" + i + ")";
+        			newName = FilenameUtils.removeExtension(name) 
+        					+ " (" + i + ")." 
+        					+ FilenameUtils.getExtension(name);
             		newF = new File(path + "/" + newName);
+            		i += 1;
+            		System.out.println(newName);
         		}
         		if(!newName.equals(name)) {
         			((FilesFolders) vbox.getUserData()).updateName(newName, false);
@@ -287,6 +293,7 @@ public class GUIEventHandlers{
             	MementoDelete md = new MementoDelete(
         			(FilesFolders) vbox.getUserData(),
         			((FilesFolders) vbox.getUserData()).getFile().getParentFile().toString(),
+        			name,
         			newName
     			);
             	Command.getInstance().addMemento(md);
@@ -294,8 +301,6 @@ public class GUIEventHandlers{
             }
         };
         
-        // TODO
-        // copy triggered by ctrl+c
         this.copyCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
             	Object obj = WindowF.getInstance().getCurrentSelection();
@@ -313,26 +318,14 @@ public class GUIEventHandlers{
         // paste triggered by ctrl+v
         this.pasteCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
-//            	VBox vbox = (VBox) cm.getUserData();
-
-//            	VBox vbox = WindowF.getInstance().getCurrentSelection();
-            	
-            	
-
             	Object obj = WindowF.getInstance().getCurrentSelection();
             	if(obj.getClass().getSimpleName().equals("VBox")) {
                 	((ItemFolder) ((VBox) obj).getUserData()).paste();
             	}
             	if(obj.getClass().getSimpleName().equals("FlowPane")) {
-
-//                	FlowPane fp = WindowF.getInstance().getFlowIcons();
-//                	ItemFolder folder = (ItemFolder)
-//                			((FilesFolders) fp.getUserData()).getParent();
             		WindowF.getInstance().getCurrentFolder().paste();
             		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
             	}
-            	
         	}
         };
         

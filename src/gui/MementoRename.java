@@ -14,11 +14,13 @@ public class MementoRename implements Memento {
     
 
 	public void restore() {
-		filesFolders.updateName(prevName);
+		filesFolders.updateName(prevName, false);
+    	WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 	
 	public void redo() {
-		filesFolders.updateName(newName);
+		filesFolders.updateName(newName, false);
+    	WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 
 	public void printInfo() {
