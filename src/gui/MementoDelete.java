@@ -10,11 +10,11 @@ import javafx.scene.layout.FlowPane;
 public class MementoDelete implements Memento {
 	
     private FilesFolders filesFolders;
-    private String prevDir;
+    private ItemFolder prevDir;
     private String prevName;
     private String newName;
 	
-    public MementoDelete(FilesFolders fF, String prevDir, String prevName, String newName) {
+    public MementoDelete(FilesFolders fF, ItemFolder prevDir, String prevName, String newName) {
         this.filesFolders = fF;
         this.prevDir = prevDir;
         this.prevName = prevName;
@@ -22,14 +22,14 @@ public class MementoDelete implements Memento {
     }
     
 	public void restore() {
-		filesFolders.updatePath(prevDir, WindowF.getInstance().getCurrentFolder());
-    	filesFolders.updateName(prevName, false);
+		filesFolders.updatePath(prevDir);
+    	filesFolders.updateName(prevName);
     	WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 	
 	public void redo() {
-    	filesFolders.updateName(newName, false);
-    	filesFolders.delete(WindowF.getInstance().getCurrentFolder());
+    	filesFolders.updateName(newName);
+    	filesFolders.delete();
     	WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 

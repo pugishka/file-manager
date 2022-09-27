@@ -2,21 +2,23 @@ package gui;
 
 public class MementoPaste implements Memento {
 	
-    private FilesFolders parent;
+    private ItemFolder parent;
     private FilesFolders newFile;
 	
-    public MementoPaste(FilesFolders parent, FilesFolders newFile) {
+    public MementoPaste(ItemFolder parent, FilesFolders newFile) {
         this.parent = parent;
         this.newFile = newFile;
     }
     
 
 	public void restore() {
-		newFile.delete(WindowF.getInstance().getCurrentFolder());
+		newFile.delete();
+		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 	
 	public void redo() {
-		newFile.updatePath(parent.getFile().getPath(), WindowF.getInstance().getCurrentFolder());
+		newFile.updatePath(parent);
+		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
 	}
 
 	public void printInfo() {

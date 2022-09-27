@@ -2,6 +2,7 @@ package gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.swing.JTextField;
@@ -79,6 +80,8 @@ public class GUIEventHandlers{
 	private boolean copyPressed = false;
 	// paste (ctrl+v) pressed ?
 	private boolean pastePressed = false;
+	// delete pressed ?
+	private boolean deletePressed = false;
 	// event click on window
 	private EventHandler<MouseEvent> clickWindow;
 	
@@ -92,16 +95,7 @@ public class GUIEventHandlers{
 		// open root folder
 		this.openFileMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	File dir = new File(root);
-            	File recycleBin = new File(root + "/recycleBin");
-            	if (!recycleBin.exists()){
-            		recycleBin.mkdirs();
-            	}
-            	ItemFolder folder = new ItemFolder(dir, null);
-            	folder.showImmediateChildren();
-            	GUIEventHandlers.getInstance().setRootObject(folder);
-            	GUIEventHandlers.getInstance().setRecycleBin(
-            			(ItemFolder) folder.getFilesFolders("recycleBin"));
+            	ActionEvents.initWorkspace();
             }
         };
         
@@ -112,14 +106,12 @@ public class GUIEventHandlers{
         // - show contextual menu
         this.openFileIcon = new EventHandler<MouseEvent>() {
         	public void handle(MouseEvent e) {
-
         		FilesFolders f = (FilesFolders) 
             			((VBox) e.getSource()).getUserData();
             	String name = f.getClass().getSimpleName();
         		
         		if(e.getButton().equals(MouseButton.PRIMARY)){
                     if(e.getClickCount() == 2){
-                    	
                     	if(name.equals("ItemFile")){
                     		
                     		// TODO
@@ -157,13 +149,7 @@ public class GUIEventHandlers{
         // button to return to the parent folder, up to the root folder
 		this.returnPrevious = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-//            	FlowPane fp = WindowF.getInstance().getFlowIcons();
-//            	ItemFolder folder = (ItemFolder)
-//            			((FilesFolders) fp.getUserData()).getParent();;
-            	ItemFolder folder = (ItemFolder) WindowF.getInstance().getCurrentFolder().getParent();
-            	if(!(folder == null)) {
-	            	folder.showImmediateChildren();
-	        	}
+            	ActionEvents.returnFolder();
             }
         };
         
@@ -172,88 +158,7 @@ public class GUIEventHandlers{
         // name already used
 		this.renameCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-//            	ContextMenu cm = WindowF.getInstance().getCMenu("file");
-//            	VBox vbox = (VBox) cm.getUserData();
-
-            	Object obj = WindowF.getInstance().getCurrentSelection();
-            	if(obj.getClass().getSimpleName().equals("VBox")) {
-                	VBox vbox = (VBox) obj;
-                	
-                	Label v = (Label) vbox.lookup(".show");
-                	AnchorPane ap = WindowF.getInstance().getAnchorPane();
-                	Scene scene = WindowF.getInstance().getScene();
-                	v.getStyleClass().remove("show");
-                	v.getStyleClass().add("hide");
-                	
-                	Text text = new Text(v.getText());
-                    new Scene(new Group(text));
-                	TextField t = new TextField(v.getText());
-
-                	Bounds b = v.localToScene(v.getBoundsInLocal());
-                	Bounds b2 = ap.localToScene(ap.getBoundsInLocal());
-                	AnchorPane.setLeftAnchor(t, b.getMinX() - b2.getMinX());
-                	AnchorPane.setTopAnchor(t, b.getMinY() - b2.getMinY());
-                	ap.getChildren().add(t);
-                	
-                	t.setMaxWidth(b2.getMaxX() - b.getMinX());
-            		Double prefW = text.getLayoutBounds().getWidth() + 30;
-            		if(prefW < t.getMaxWidth()-30) {
-            			t.setPrefWidth(prefW);
-            		} else {
-            			t.setPrefWidth(t.getMaxWidth()-30);
-            		}
-            		
-            		t.requestFocus();
-            		t.positionCaret(t.getText().length());
-                	
-                	t.textProperty().addListener((o, ov, nv) -> {
-                		text.setText(nv);
-                		Double newW = text.getLayoutBounds().getWidth() + 30;
-                		if(newW < t.getMaxWidth()-30) {
-                			t.setPrefWidth(newW);
-                		} 
-                	});
-                	
-                	
-                	t.focusedProperty().addListener((o, ov, nv) -> {
-                        if (!nv) {
-                        	ap.getChildren().remove(t);
-                        	v.getStyleClass().remove("hide");
-                        	v.getStyleClass().add("show");
-                        }
-                    });
-                	
-                	t.setOnKeyReleased(event -> {
-            	        if (event.getCode().equals(KeyCode.ENTER)) {
-                        	ap.getChildren().remove(t);
-                        	v.getStyleClass().remove("hide");
-                        	v.getStyleClass().add("show");
-                        	// previous name, new name
-                        	String pn = ((FilesFolders) vbox.getUserData()).
-                        			getFile().getName();
-                        	String nn = t.getText();
-                        	File file = new File(WindowF.getInstance().getCurrentFolder().getFile().getPath() + "/" + nn);
-                        	if(file.exists()) {
-                        		WindowF.getInstance().alertMessage("name");
-                        	}
-                        	((FilesFolders) vbox.getUserData()).updateName(nn, true);
-                        	MementoRename mr = new MementoRename(
-                    			(FilesFolders) vbox.getUserData(),
-                    			pn,
-                    			nn
-                			);
-                        	Command.getInstance().addMemento(mr);
-            	        }
-                	});
-                	
-                	scene.setOnMousePressed(event -> {
-    	                if (!t.equals(event.getTarget())) {
-    		                vbox.requestFocus();
-    	                }
-                	});
-            	}
-            	
-            	
+            	ActionEvents.rename();
             }
         };
         
@@ -262,70 +167,20 @@ public class GUIEventHandlers{
         // delete triggered by delete key
         this.deleteCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-//            	ContextMenu cm = WindowF.getInstance().getFileCMenu();
-//            	VBox vbox = (VBox) cm.getUserData();
-//            	VBox vbox = WindowF.getInstance().getCurrentSelection();
-            	
-
-            	Object obj = WindowF.getInstance().getCurrentSelection();
-            	VBox vbox = null;
-            	if(obj.getClass().getSimpleName().equals("VBox")) {
-                	vbox = (VBox) obj;
-            	}
-
-        		String path = getRoot() + "/recycleBin";
-        		String name = ((FilesFolders) vbox.getUserData()).getFile().getName();
-        		String newName = name;
-        		File newF = new File(path + "/" + name);
-        		int i = 1;
-        		while(newF.exists()) {
-        			newName = FilenameUtils.removeExtension(name) 
-        					+ " (" + i + ")." 
-        					+ FilenameUtils.getExtension(name);
-            		newF = new File(path + "/" + newName);
-            		i += 1;
-            		System.out.println(newName);
-        		}
-        		if(!newName.equals(name)) {
-        			((FilesFolders) vbox.getUserData()).updateName(newName, false);
-        		}
-        		// stopped last time
-            	MementoDelete md = new MementoDelete(
-        			(FilesFolders) vbox.getUserData(),
-        			((FilesFolders) vbox.getUserData()).getFile().getParentFile().toString(),
-        			name,
-        			newName
-    			);
-            	Command.getInstance().addMemento(md);
-            	((FilesFolders) vbox.getUserData()).delete(null);
+            	ActionEvents.delete();
             }
         };
         
         this.copyCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	Object obj = WindowF.getInstance().getCurrentSelection();
-            	VBox vbox = null;
-            	if(obj.getClass().getSimpleName().equals("VBox")) {
-                	vbox = (VBox) obj;
-            	}
-            	
-            	((FilesFolders) vbox.getUserData()).copy();
+            	ActionEvents.copy();
             }
         };
             
-        // TODO
-        // paste in current folder
-        // paste triggered by ctrl+v
+        // memento in itemFolder
         this.pasteCMenu = new EventHandler<ActionEvent>() {
             public void handle(ActionEvent e){
-            	Object obj = WindowF.getInstance().getCurrentSelection();
-            	if(obj.getClass().getSimpleName().equals("VBox")) {
-                	((ItemFolder) ((VBox) obj).getUserData()).paste();
-            	}
-            	if(obj.getClass().getSimpleName().equals("FlowPane")) {
-            		WindowF.getInstance().getCurrentFolder().paste();
-            		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
-            	}
+            	ActionEvents.paste(false);
         	}
         };
         
@@ -343,41 +198,51 @@ public class GUIEventHandlers{
             	
             	// only the first detected will = true
             	
+//            	ArrayList<Boolean> actionsPressed = new ArrayList<Boolean>(
+//            			Arrays.asList(
+//            					undoPressed, 
+//            					redoPressed, 
+//            					copyPressed, 
+//            					pastePressed)
+//            			);
+            	
             	// ctrl + z
-            	if(keysPressed.contains(KeyCode.Z) 
-            			&& event.isControlDown() 
-            			&& !redoPressed
-            			&& !copyPressed
-            			&& !pastePressed) {
-            		undoPressed = true;
+            	if(event.isControlDown()) {
+                	if(keysPressed.contains(KeyCode.Z)) {
+                		undoPressed = true;
+                	} else if (keysPressed.contains(KeyCode.Y)) {
+                		redoPressed = true;
+                	} else if (keysPressed.contains(KeyCode.C)) {
+                		copyPressed = true;
+                	} else if(keysPressed.contains(KeyCode.V)) {
+                		pastePressed = true;
+                	}
+            	} else if(keysPressed.contains(KeyCode.DELETE)){
+            		deletePressed = true;
             	}
             	
-            	// ctrl + y
-            	if(keysPressed.contains(KeyCode.Y) 
-            			&& event.isControlDown() 
-            			&& !undoPressed
-            			&& !copyPressed
-            			&& !pastePressed) {
-            		redoPressed = true;
-            	}
-            	
-            	// ctrl + c
-            	if(keysPressed.contains(KeyCode.C) 
-            			&& event.isControlDown() 
-            			&& !undoPressed
-            			&& !redoPressed
-            			&& !pastePressed) {
-            		copyPressed = true;
-            	}
-            	
-            	// ctrl + v
-            	if(keysPressed.contains(KeyCode.V) 
-            			&& event.isControlDown() 
-            			&& !undoPressed
-            			&& !redoPressed
-            			&& !copyPressed) {
-            		pastePressed = true;
-            	}
+//            	
+//            	if
+//            			&& event.isControlDown() 
+//            			&& !undoPressed
+//            			&& !copyPressed
+//            			&& !pastePressed) {
+//            	}
+//            	
+//            	// ctrl + c
+//            	if(
+//            			&& event.isControlDown() 
+//            			&& !undoPressed
+//            			&& !redoPressed
+//            			&& !pastePressed) {
+//            	}
+//            	
+//            	// ctrl + v
+//            			&& event.isControlDown() 
+//            			&& !undoPressed
+//            			&& !redoPressed
+//            			&& !copyPressed) {
+//            	}
             	
             }
         };
@@ -385,7 +250,9 @@ public class GUIEventHandlers{
 	    this.listenKeysReleased = new EventHandler<KeyEvent>() {
 	        @Override
 	        public void handle(KeyEvent event) {
+	        	
 	        	keysPressed.remove(event.getCode());
+	        	
             	if((!keysPressed.contains(KeyCode.Z) || !event.isControlDown())
             			&& undoPressed){
             		undoPressed = false;
@@ -401,18 +268,24 @@ public class GUIEventHandlers{
             	if((!keysPressed.contains(KeyCode.C) || !event.isControlDown())
             			&& copyPressed){
             		copyPressed = false;
-            		Object obj = ((Node) WindowF.getInstance().getCurrentSelection());
-            		if(obj.getClass().getSimpleName().equals("VBox")) {
-            			((FilesFolders) ((VBox) obj).getUserData()).copy();
-                		System.out.println("copy");
-            		}
+            		ActionEvents.copy();
             	}
             	if((!keysPressed.contains(KeyCode.V) || !event.isControlDown())
             			&& pastePressed){
             		pastePressed = false;
-            		WindowF.getInstance().getCurrentFolder().paste();
-            		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
+            		ActionEvents.paste(true);
             		System.out.println("paste");
+            	}
+            	if(!keysPressed.contains(KeyCode.DELETE) && deletePressed) {
+            		deletePressed = false;
+            		
+            		ActionEvents.delete();
+//            		Object obj = ((Node) WindowF.getInstance().getCurrentSelection());
+//            		if(obj.getClass().getSimpleName().equals("VBox")) {
+//            			((FilesFolders) ((VBox) obj).getUserData()).delete();
+//                		WindowF.getInstance().getCurrentFolder().showImmediateChildren();
+//                		System.out.println("delete");
+//            		}
             	}
 	        }
 	    };

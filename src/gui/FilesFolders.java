@@ -5,6 +5,9 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.io.FilenameUtils;
+
 import java.awt.Desktop;
 import java.awt.Toolkit;
 
@@ -70,10 +73,7 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		return r;
     }
 	
-	// TODO
-	// put reload in GUI
-	public default void updateName(String name, Boolean reload) {
-//		FlowPane fp = WindowF.getInstance().getFlowIcons();
+	public default void updateName(String name) {
 		int i = getParent().getFiles().indexOf(this);
 		
 		File f = getFile();
@@ -81,59 +81,76 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 		File newF = new File(s);
 		
 		if(newF.exists()) {
-			//TODO
+			// TODO
 		} else {
 			f.renameTo(newF);
 			this.setFile(newF);
 			getParent().getFiles().set(i, this);
-			if(reload) {
-				getParent().showImmediateChildren();
-			}
 		}
 	}
+	
+    public default String newName(ItemFolder destFolder) {
+    	String name = getFile().getName();
+		String newName = name;
+		String path = destFolder.getFile().getPath();
+		File newF = new File(path + "/" + name);
+		int i = 1; 
+		while(newF.exists()) {
+			newName = FilenameUtils.removeExtension(name) 
+					+ " (" + i + ")." 
+					+ FilenameUtils.getExtension(name);
+    		newF = new File(path + "/" + newName);
+    		i += 1;
+		}
+		return newName;
+    }
 	
 
 	// TODO
 	// name already exists
 	
-	public default void updatePath(String path, ItemFolder reload) {
+//	public default void updatePath(String path, ItemFolder reload) {
+	public default void updatePath(ItemFolder destFolder) {
 		int i = getParent().getFiles().indexOf(this);
 		
 		File f = getFile();
-		String s = path + "/" + f.getName();
-		File newF = new File(s);
+		String name = f.getName();
+		File newF = new File(destFolder.getFile().getPath() + "/" + name);
 		
 		if(newF.exists()) {
-			//TODO
-		} else {
-			f.renameTo(newF);
-			this.setFile(newF);
-			getParent().getFiles().remove(i);
-			
-			// find the FilesFolders to put this in
-			FilesFolders newFolder = GUIEventHandlers.getInstance().getRootObject();
-			File root = newFolder.getFile();
-			
-			// separate each folder from root directory
-			ArrayList<String> dir = new ArrayList<String>();
-			newF = new File(path);
-			
-			// TODO
-			// Can a file and folder have the same name ?
-			
-	    	while (newF.getParentFile() != null && !(newF.toString().equals(root.toString()))) {
-	    		dir.add(newF.getName());
-		        newF = newF.getParentFile();
-	    	}
-	    	
-	    	for (int j=dir.size()-1; j>=0; j--) {
-				newFolder = ((ItemFolder) newFolder).getFilesFolders(dir.get(j));
-	    	}
-	    	
-			((ItemFolder) newFolder).getFiles().add(this);
-			reload.showImmediateChildren();
-			this.setParent((ItemFolder) newFolder);
+    		String newName = newName(destFolder);
+    		System.out.println(newName);
+    		newF = new File(destFolder.getFile().getPath() + "/" + newName);
 		}
+		
+		f.renameTo(newF);
+		this.setFile(newF);
+		getParent().getFiles().remove(i);
+		
+//		// find the FilesFolders to put this in
+//		FilesFolders newFolder = GUIEventHandlers.getInstance().getRootObject();
+//		File root = newFolder.getFile();
+//		
+//		// separate each folder from root directory
+//		ArrayList<String> dir = new ArrayList<String>();
+//		newF = new File(path);
+//		
+//		// TODO
+//		// Can a file and folder have the same name ?
+//		
+//    	while (newF.getParentFile() != null && !(newF.toString().equals(root.toString()))) {
+//    		dir.add(newF.getName());
+//	        newF = newF.getParentFile();
+//    	}
+//    	
+//    	for (int j=dir.size()-1; j>=0; j--) {
+//			newFolder = ((ItemFolder) newFolder).getFilesFolders(dir.get(j));
+//    	}
+    	
+		
+		
+		destFolder.getFiles().add(this);
+		this.setParent(destFolder);
 	}
 	
 	public void setParent(ItemFolder parent);
@@ -141,12 +158,14 @@ public interface FilesFolders extends Comparable<FilesFolders> {
 	// TODO
 	// name already exists
 	
-	public default void delete(ItemFolder reload) {
-		if(reload == null) {
-			reload = this.getParent();
-		}
-		String path = GUIEventHandlers.getInstance().getRoot() + "/recycleBin";
-		updatePath(path, reload);
+	public default void delete() {
+//		if(reload == null) {
+//			reload = this.getParent();
+//		}
+//		String path = GUIEventHandlers.getInstance().getRoot() + "/recycleBin";
+		
+//		updatePath(path, reload);
+		updatePath(GUIEventHandlers.getInstance().getRecycleBin());
 	}
 	
 //	public default void deleteBin() {
